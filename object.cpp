@@ -48,8 +48,8 @@ void bmodMotionState::setWorldTransform(const btTransform &worldTrans) {
 	entity->v.origin.z=pos.z();
 	float rot[3];
 	worldTrans.getBasis().getEulerZYX(rot[0],rot[1],rot[2]);
-	entity->v.angles.x=rot[0]*RAD2DEG;
-	entity->v.angles.y=rot[1]*RAD2DEG;
-	entity->v.angles.x=rot[2]*RAD2DEG;
+	entity->v.angles.x=-rot[1]*RAD2DEG;	//Pitch (Y)
+	entity->v.angles.y=rot[0]*RAD2DEG;	//Yaw (Z)
+	entity->v.angles.z=rot[2]*RAD2DEG;	//Roll (X)
 //	printf("%f %f %f %f %f %f\n",pos.x(),pos.y(),pos.z(),entity->v.origin.x,entity->v.origin.y,entity->v.origin.z);
 }
