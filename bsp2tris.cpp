@@ -7,20 +7,22 @@
 #include <stdlib.h>
 #include <math.h>
 
-bool vnil(const float * vertex, int pos, float nvertex[3], int scale){
+#include <btBulletDynamicsCommon.h>
+
+bool vnil(const float * vertex, int pos, float nvertex[3]){
 	return (
-		fabs((vertex[pos+3]-vertex[pos])*(nvertex[1]/scale-vertex[pos+4])-
-		(vertex[pos+4]-vertex[pos+1])*(nvertex[0]/scale-vertex[pos+3]))>=1.0/scale
+		fabs((vertex[pos+3]-vertex[pos])*(nvertex[1]-vertex[pos+4])-
+		(vertex[pos+4]-vertex[pos+1])*(nvertex[0]-vertex[pos+3]))>=1.0
 		||
-		fabs((vertex[pos+4]-vertex[pos+1])*(nvertex[2]/scale-vertex[pos+5])-
-		(vertex[pos+5]-vertex[pos+2])*(nvertex[1]/scale-vertex[pos+4]))>=1.0/scale
+		fabs((vertex[pos+4]-vertex[pos+1])*(nvertex[2]-vertex[pos+5])-
+		(vertex[pos+5]-vertex[pos+2])*(nvertex[1]-vertex[pos+4]))>=1.0
 		||
-		fabs((vertex[pos+3]-vertex[pos+0])*(nvertex[2]/scale-vertex[pos+5])-
-		(vertex[pos+5]-vertex[pos+2])*(nvertex[0]/scale-vertex[pos+3]))>=1.0/scale
+		fabs((vertex[pos+3]-vertex[pos+0])*(nvertex[2]-vertex[pos+5])-
+		(vertex[pos+5]-vertex[pos+2])*(nvertex[0]-vertex[pos+3]))>=1.0
 		);
 }
 
-tris_s bsp2tris(const char* bsp_c,int scale,int model)
+tris_s * bsp2tris(const char* bsp_c,int model)
 {
 	//nacteni souboru
 	FILE * bsp;
@@ -46,11 +48,11 @@ tris_s bsp2tris(const char* bsp_c,int scale,int model)
 	printf(entities);*/
 	////
 	//bsp2tris
-	tris_s tris;
-	tris.vertices = (float *) malloc(header->lumps[LUMP_VERTEXES].filelen*3*sizeof(float));
-	tris.indices = (int *) malloc(header->lumps[LUMP_VERTEXES].filelen*3*sizeof(int));
-	tris.vertices_c=0;
-	tris.indices_c=0;
+	tris_s * tris = (tris_s*) malloc(sizeof(tris_s));
+	tris->vertices = (float *) malloc(header->lumps[LUMP_VERTEXES].filelen*3*sizeof(float));
+	tris->indices = (int *) malloc(header->lumps[LUMP_VERTEXES].filelen*3*sizeof(int));
+	tris->vertices_c=0;
+	tris->indices_c=0;
 	int se,v,i_v,i_f,index=0,temp_vertices=0;
 	for(i_f=models[model].firstface;i_f<models[model].firstface+models[model].numfaces;i_f++){
 		for(i_v=0;i_v<faces[i_f].numedges;i_v++){
@@ -64,28 +66,28 @@ tris_s bsp2tris(const char* bsp_c,int scale,int model)
 				v = edges[se].v[0];
 			}
 			if(i_v>=2){
-				if(!vnil(tris.vertices,tris.vertices_c-6,vertices[v].point,scale)){
-					tris.vertices_c-=3;
+				if(!vnil(tris->vertices,tris->vertices_c-6,vertices[v].point)){
+					tris->vertices_c-=3;
 				}
 			}
 			for(int i=0;i<3;i++){
-				tris.vertices[tris.vertices_c++] = vertices[v].point[i]/scale;
+				tris->vertices[tris->vertices_c++] = vertices[v].point[i];
 			}
 		}
-		temp_vertices=tris.vertices_c/3;
+		temp_vertices=tris->vertices_c/3;
 		if(temp_vertices-index<3)
-			tris.vertices_c-=3*(temp_vertices-index);
+			tris->vertices_c-=3*(temp_vertices-index);
 		for(i_v=0;i_v<temp_vertices-index;i_v++){
 			if(i_v+2<temp_vertices-index){
-				tris.indices[tris.indices_c++]=index;
-				tris.indices[tris.indices_c++]=index+i_v+2;
-				tris.indices[tris.indices_c++]=index+i_v+1;
+				tris->indices[tris->indices_c++]=index;
+				tris->indices[tris->indices_c++]=index+i_v+2;
+				tris->indices[tris->indices_c++]=index+i_v+1;
 			}
 		}
-		index=tris.vertices_c/3;
+		index=tris->vertices_c/3;
 	}
-	tris.vertices = (float*)realloc(tris.vertices,tris.vertices_c*3*sizeof(float));
-	tris.indices = (int*)realloc(tris.indices,tris.indices_c*sizeof(int));
+	tris->vertices = (float*)realloc(tris->vertices,tris->vertices_c*3*sizeof(float));
+	tris->indices = (int*)realloc(tris->indices,tris->indices_c*sizeof(int));
 	free(bsp_r);
 	return tris;
 }

@@ -6,4 +6,4 @@ typedef struct{
 	int indices_c;
 }tris_s;
 
-tris_s bsp2tris(const char*,int,int);
+tris_s * bsp2tris(const char*,int);

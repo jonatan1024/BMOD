@@ -4,6 +4,7 @@
 #include <stdio.h>
 
 #include "object.h"
+#include "bsp2tris.h"
 
 #define BMOD_GRAVITY -525 //-10m/s^2 -> -1000cm/s^2 -> convert to game units (1/1.905f)
 #define BMOD_FPS 60
@@ -57,14 +58,22 @@ void OnAmxxAttach()
 
 btRigidBody* g_bmod_mapBody;
 btCollisionShape* g_bmod_mapShape;
+tris_s * g_bmod_tris;
 
 void ServerActivate_Post(edict_t *pEdictList, int edictCount, int clientMax)
 {
 	printf("[BMOD] activated\n");
 
+	//get bsp path
+	char gamedir[16];
+	GET_GAME_DIR(gamedir);
+	char bspname[64];
+	sprintf(bspname,"%s/maps/%s.bsp",gamedir,STRING(gpGlobals->mapname));
 	//load the map
-	//TODO: trimesh!
-	g_bmod_mapShape = new btStaticPlaneShape(btVector3(0,0,1),0);
+	//g_bmod_mapShape = new btStaticPlaneShape(btVector3(0,0,1),0);
+	g_bmod_tris = bsp2tris(bspname,0);
+	btTriangleIndexVertexArray * map_trimesh = new btTriangleIndexVertexArray(g_bmod_tris->indices_c/3,g_bmod_tris->indices,3*sizeof(int),g_bmod_tris->vertices_c,g_bmod_tris->vertices,3*sizeof(float));
+	g_bmod_mapShape = new btBvhTriangleMeshShape(map_trimesh,true);
 	btDefaultMotionState* motionState = new btDefaultMotionState();
 	btRigidBody::btRigidBodyConstructionInfo rigidBodyCI(0,motionState,g_bmod_mapShape,btVector3(0,0,0));
 	g_bmod_mapBody = new btRigidBody(rigidBodyCI);
@@ -76,7 +85,7 @@ void ServerActivate_Post(edict_t *pEdictList, int edictCount, int clientMax)
 void StartFrame_Post()
 {
 	//step it
-	g_bt_dynamicsWorld->stepSimulation(1.0/BMOD_FPS,BMOD_MAX_STEPS);//lets test variable tick
+	g_bt_dynamicsWorld->stepSimulation(1.0/BMOD_FPS,BMOD_MAX_STEPS);
 	RETURN_META(MRES_IGNORED);
 }
 
@@ -91,7 +100,9 @@ void ServerDeactivate_Post()
 	delete g_bmod_mapBody->getMotionState();
 	delete g_bmod_mapBody;
 	delete g_bmod_mapShape;
-
+	free(g_bmod_tris->indices);
+	free(g_bmod_tris->vertices);
+	free(g_bmod_tris);
 	RETURN_META(MRES_IGNORED);
 }
 
