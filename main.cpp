@@ -5,32 +5,25 @@
 
 #include "object.h"
 #include "bsp2tris.h"
+#include "objectlist.h"
 
 #define BMOD_GRAVITY -525 //-10m/s^2 -> -1000cm/s^2 -> convert to game units (1/1.905f)
 #define BMOD_FPS 60
 #define BMOD_MAX_STEPS 10
 
-#define BMOD_ENTVAR iuser3
-#define BMOD_ENTVAR_TYPE int
-
-#define INDEXOBJECT(id) ((bmodObject*)INDEXENT(id)->v.BMOD_ENTVAR)
-#define INDEXOBJECT_R(id) (INDEXENT(id)->v.BMOD_ENTVAR)
-#define ENTOBJECT(id) ((bmodObject*)id->v.BMOD_ENTVAR)
-#define ENTOBJECT_R(id) (id->v.BMOD_ENTVAR)
+bmodObjectList * g_bmod_objects;
 
 static cell AMX_NATIVE_CALL bmod_object_add(AMX *amx, cell *params){
-	INDEXOBJECT_R(params[1]) = (BMOD_ENTVAR_TYPE) new bmodObject(INDEXENT(params[1]));
-	//TODO: hook on existing entities using INDEXOBJECT
-	/*edict_t* e = CREATE_NAMED_ENTITY(ALLOC_STRING("func_wall"));//TODO: do not allocate string every time
-	SET_MODEL(e,"models/fyzbox.mdl");
-	e->v.nextthink = 86400.0;
-	e->v.movetype = 8;
-	e->v.BMOD_ENTVAR = (BMOD_ENTVAR_TYPE) new bmodObject(e);*/
-	return 1;
+	return g_bmod_objects->add(new bmodObject(INDEXENT(params[1])));
+}
+
+static cell AMX_NATIVE_CALL bmod_object_remove(AMX *amx, cell *params){
+	return g_bmod_objects->remove(INDEXENT(params[1]));
 }
 
 AMX_NATIVE_INFO amxxfunctions[] = {
 	{"bmod_object_add",bmod_object_add},
+	{"bmod_object_remove",bmod_object_remove},
 	{NULL, NULL}
 };
 
@@ -78,6 +71,8 @@ void ServerActivate_Post(edict_t *pEdictList, int edictCount, int clientMax)
 	btRigidBody::btRigidBodyConstructionInfo rigidBodyCI(0,motionState,g_bmod_mapShape,btVector3(0,0,0));
 	g_bmod_mapBody = new btRigidBody(rigidBodyCI);
 	g_bt_dynamicsWorld->addRigidBody(g_bmod_mapBody);
+	//init object list
+	g_bmod_objects = new bmodObjectList();
 
 	RETURN_META(MRES_IGNORED);
 }
@@ -93,7 +88,8 @@ void ServerDeactivate_Post()
 {
 	printf("[BMOD] deactivated\n");
 	
-	//TODO: unload objects
+	//unload objects
+	delete g_bmod_objects;
 
 	//unload the map
 	g_bt_dynamicsWorld->removeRigidBody(g_bmod_mapBody);
