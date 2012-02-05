@@ -1,16 +1,32 @@
 #include "object.h"
 
-bmodObject::bmodObject(edict_t * e){
+bmodObject::bmodObject(edict_t * e, int type, float mass, float x, float y, float z){
 	entity=e;
-	shape = new btBoxShape(btVector3(24,24,24));
+	switch(type){
+	case 0:
+		shape = new btSphereShape(x);
+		break;
+	case 1:
+		shape = new btBoxShape(btVector3(x,y,z));
+		break;
+	case 2:
+		shape = new btCylinderShapeZ(btVector3(x,y,z));
+		break;
+	case 3:
+		shape = new btCapsuleShapeZ(x,y);
+		break;
+	case 4:
+		shape = new btConeShapeZ(x,y);
+		break;
+	}
 	bmodMotionState* objectMotionState = new bmodMotionState(
 		btTransform(btQuaternion(0,0,0,1), //TODO: get rotation from entity
 		btVector3(entity->v.origin.x,entity->v.origin.y,entity->v.origin.z)),
 		entity);
-	btScalar objectMass = 1;
+	//btScalar objectMass = 1;
 	btVector3 objectInertia(0,0,0);
-	shape->calculateLocalInertia(objectMass,objectInertia);
-	btRigidBody::btRigidBodyConstructionInfo objectRigidBodyCI(objectMass,objectMotionState,shape,objectInertia);
+	shape->calculateLocalInertia(mass,objectInertia);
+	btRigidBody::btRigidBodyConstructionInfo objectRigidBodyCI(mass,objectMotionState,shape,objectInertia);
 	rigidBody = new btRigidBody(objectRigidBodyCI);
 	g_bt_dynamicsWorld->addRigidBody(rigidBody);
 	objectMotionState->setRigidBody(rigidBody);

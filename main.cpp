@@ -14,7 +14,14 @@
 bmodObjectList * g_bmod_objects;
 
 static cell AMX_NATIVE_CALL bmod_object_add(AMX *amx, cell *params){
-	return g_bmod_objects->add(new bmodObject(INDEXENT(params[1])));
+	return g_bmod_objects->add(new bmodObject(
+		INDEXENT(params[1]),	//e
+		params[2],				//type
+		amx_ctof(params[3]),	//mass
+		amx_ctof(params[4]),	//x
+		amx_ctof(params[5]),	//y
+		amx_ctof(params[6])		//z
+		));
 }
 
 static cell AMX_NATIVE_CALL bmod_object_remove(AMX *amx, cell *params){

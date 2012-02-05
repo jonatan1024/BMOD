@@ -14,7 +14,7 @@ private:
 	btRigidBody* rigidBody;
 	btCollisionShape* shape;
 public:
-	bmodObject(edict_t * entity);
+	bmodObject(edict_t * e, int type, float mass, float x, float y, float z);
 	~bmodObject();
 	edict_t * entity;
 };
