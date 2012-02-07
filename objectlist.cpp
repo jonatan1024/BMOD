@@ -16,9 +16,20 @@ bool bmodObjectList::add(bmodObject*obj){
 
 bool bmodObjectList::remove(edict_t*e){
 	for(int i=0;i<list_c;i++){
-		if(list[i]->entity == e){
+		if(list[i]->getEntity() == e){
+			activate(i);//reactivate that fucking island
 			delete list[i];
 			list[i]=list[--list_c];	//replace with last object
+			return 1;
+		}
+	}
+	return 0;
+}
+
+bool bmodObjectList::activate(int obj){
+	for(int i=0;i<list_c;i++){
+		if(i != obj && list[i]->getIslandTag() == list[obj]->getIslandTag()){
+			list[i]->activate();
 			return 1;
 		}
 	}

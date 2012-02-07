@@ -13,22 +13,25 @@ class bmodObject{
 private:
 	btRigidBody* rigidBody;
 	btCollisionShape* shape;
+	edict_t * entity;
 public:
 	bmodObject(edict_t * e, int type, float mass, float x, float y, float z);
+	edict_t * getEntity();
+	int getIslandTag();
+	void activate();
 	~bmodObject();
-	edict_t * entity;
 };
 
 class bmodMotionState : public btMotionState {
 public:
-	bmodMotionState(const btTransform &initialpos,edict_t * entity);
+	bmodMotionState(edict_t * entity);
 	virtual ~bmodMotionState();
 	virtual void getWorldTransform(btTransform &worldTrans) const;
 	virtual void setWorldTransform(const btTransform &worldTrans);
 	void setRigidBody(btRigidBody*body);
 protected:
+	float offset[3];//origin offset
 	edict_t * entity;
-	btTransform bt_initpos;
 	btRigidBody * bt_body;
 };
 #endif

@@ -12,6 +12,7 @@ public:
 	bmodObjectList();
 	bool add(bmodObject*);
 	bool remove(edict_t*);
+	bool activate(int);
 	~bmodObjectList();
 };
 #endif
