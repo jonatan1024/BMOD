@@ -12,6 +12,8 @@
 #define BMOD_MAX_STEPS 10
 
 bmodObjectList * g_bmod_objects;
+btRigidBody* g_bmod_mapBody;
+btCollisionShape* g_bmod_mapShape;
 
 static cell AMX_NATIVE_CALL bmod_object_add(AMX *amx, cell *params){
 	return g_bmod_objects->add(new bmodObject(
@@ -28,9 +30,39 @@ static cell AMX_NATIVE_CALL bmod_object_remove(AMX *amx, cell *params){
 	return g_bmod_objects->remove(INDEXENT(params[1]));
 }
 
+static cell AMX_NATIVE_CALL bmod_object_set_friction(AMX *amx, cell *params){
+	if(bmodObject * object = g_bmod_objects->find(INDEXENT(params[1]))){
+		object->setFriction(amx_ctof(params[2]));
+		return 1;
+	}
+	return 0;
+}
+
+static cell AMX_NATIVE_CALL bmod_object_set_restitution(AMX *amx, cell *params){
+	if(bmodObject * object = g_bmod_objects->find(INDEXENT(params[1]))){
+		object->setRestitution(amx_ctof(params[2]));
+		return 1;
+	}
+	return 0;
+}
+
+static cell AMX_NATIVE_CALL bmod_world_set_friction(AMX *amx, cell *params){
+	g_bmod_mapBody->setFriction(amx_ctof(params[1]));
+	return 1;
+}
+
+static cell AMX_NATIVE_CALL bmod_world_set_restitution(AMX *amx, cell *params){
+	g_bmod_mapBody->setRestitution(amx_ctof(params[1]));
+	return 1;
+}
+
 AMX_NATIVE_INFO amxxfunctions[] = {
 	{"bmod_object_add",bmod_object_add},
 	{"bmod_object_remove",bmod_object_remove},
+	{"bmod_object_set_friction",bmod_object_set_friction},
+	{"bmod_object_set_restitution",bmod_object_set_restitution},
+	{"bmod_world_set_friction",bmod_world_set_friction},
+	{"bmod_world_set_restitution",bmod_world_set_restitution},
 	{NULL, NULL}
 };
 
@@ -56,8 +88,6 @@ void OnAmxxAttach()
 	RETURN_META(MRES_IGNORED);
 }
 
-btRigidBody* g_bmod_mapBody;
-btCollisionShape* g_bmod_mapShape;
 tris_s * g_bmod_tris;
 
 void ServerActivate_Post(edict_t *pEdictList, int edictCount, int clientMax)

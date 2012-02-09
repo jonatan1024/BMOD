@@ -19,6 +19,8 @@ public:
 	edict_t * getEntity();
 	int getIslandTag();
 	void activate();
+	void setFriction(float friction);
+	void setRestitution(float restitution);
 	~bmodObject();
 };
 
@@ -30,7 +32,7 @@ public:
 	virtual void setWorldTransform(const btTransform &worldTrans);
 	void setRigidBody(btRigidBody*body);
 protected:
-	float offset[3];//origin offset
+	//float offset[3];//origin offset
 	edict_t * entity;
 	btRigidBody * bt_body;
 };

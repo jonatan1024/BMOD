@@ -36,6 +36,15 @@ bool bmodObjectList::activate(int obj){
 	return 0;
 }
 
+bmodObject* bmodObjectList::find(edict_t*e){
+	for(int i=0;i<list_c;i++){
+		if(list[i]->getEntity() == e){
+			return list[i];
+		}
+	}
+	return 0;
+}
+
 bmodObjectList::~bmodObjectList(){
 	for(int i=0;i<list_c;i++){
 		delete list[i];

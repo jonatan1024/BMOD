@@ -42,6 +42,14 @@ void bmodObject::activate(){
 	rigidBody->activate(true);
 }
 
+void bmodObject::setFriction(float friction){
+	rigidBody->setFriction(friction);
+}
+
+void bmodObject::setRestitution(float restitution){
+	rigidBody->setRestitution(restitution);
+}
+
 bmodObject::~bmodObject(){
 	g_bt_dynamicsWorld->removeRigidBody(rigidBody);
 	delete rigidBody->getMotionState();
@@ -51,15 +59,15 @@ bmodObject::~bmodObject(){
 
 //bmod motion state (move callback)
 
-#define NEWORIGIN(a) ((entity->v.absmin.a + entity->v.absmax.a) * 0.5)
+//#define NEWORIGIN(a) ((entity->v.absmin.a + entity->v.absmax.a) * 0.5)
 
 bmodMotionState::bmodMotionState(edict_t * e) {
 	entity=e;
 	bt_body=NULL;
-	//in-fucking-credible, is there any way how to move origin into real center of brush entity?
-	offset[0]=NEWORIGIN(x)-entity->v.origin.x;
+	//brushes with origin in 0,0,0 are fucked up anyway >> unsupported
+	/*offset[0]=NEWORIGIN(x)-entity->v.origin.x;
 	offset[1]=NEWORIGIN(y)-entity->v.origin.y;
-	offset[2]=NEWORIGIN(z)-entity->v.origin.z;
+	offset[2]=NEWORIGIN(z)-entity->v.origin.z;*/
 }
 
 bmodMotionState::~bmodMotionState(){
@@ -69,9 +77,7 @@ bmodMotionState::~bmodMotionState(){
 void bmodMotionState::getWorldTransform(btTransform &worldTrans) const {
 	//TODO: get rotation from entity; i should also get velocity and avelocity and apply it on created bullet object
 	worldTrans = btTransform(btQuaternion(0,0,0,1),
-		btVector3(NEWORIGIN(x),
-		NEWORIGIN(y),
-		NEWORIGIN(z)));
+		btVector3(entity->v.origin.x,entity->v.origin.y,	entity->v.origin.z));
 }
 
 void bmodMotionState::setRigidBody(btRigidBody * body){
@@ -85,15 +91,16 @@ void bmodMotionState::setRigidBody(btRigidBody * body){
 
 void bmodMotionState::setWorldTransform(const btTransform &worldTrans) {
 	btVector3 vec3 = worldTrans.getOrigin();
-	entity->v.absmin.x=vec3.x()-entity->v.size.x*0.5;
-	entity->v.absmin.y=vec3.y()-entity->v.size.y*0.5;
-	entity->v.absmin.z=vec3.z()-entity->v.size.z*0.5;
-	entity->v.absmax.x=vec3.x()+entity->v.size.x*0.5;
-	entity->v.absmax.y=vec3.y()+entity->v.size.y*0.5;
-	entity->v.absmax.z=vec3.z()+entity->v.size.z*0.5;
-	entity->v.origin.x=vec3.x()-offset[0];
+	BT2HLVEC(entity->v.origin,vec3);
+	entity->v.absmin.x=entity->v.origin.x-entity->v.size.x*0.5;
+	entity->v.absmin.y=entity->v.origin.y-entity->v.size.y*0.5;
+	entity->v.absmin.z=entity->v.origin.z-entity->v.size.z*0.5;
+	entity->v.absmax.x=entity->v.origin.x+entity->v.size.x*0.5;
+	entity->v.absmax.y=entity->v.origin.y+entity->v.size.y*0.5;
+	entity->v.absmax.z=entity->v.origin.z+entity->v.size.z*0.5;
+	/*entity->v.origin.x=vec3.x()-offset[0];
 	entity->v.origin.y=vec3.y()-offset[1];
-	entity->v.origin.z=vec3.z()-offset[2];
+	entity->v.origin.z=vec3.z()-offset[2];*/
 	float rot[3];
 	worldTrans.getBasis().getEulerZYX(rot[0],rot[1],rot[2]);
 	entity->v.angles.x=-rot[1]*RAD2DEG;	//Pitch (Y)
