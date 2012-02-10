@@ -33,6 +33,4 @@ native bmod_world_set_friction(Float:friction)
 Set world restitution (bounciness)
 */
 native bmod_world_set_restitution(Float:restitution)
-/* AMXX-Studio Notes - DO NOT MODIFY BELOW HERE
-*{\\ rtf1\\ ansi\\ deff0{\\ fonttbl{\\ f0\\ fnil Tahoma;}}\n\\ viewkind4\\ uc1\\ pard\\ lang5129\\ f0\\ fs16 \n\\ par }
-*/
+
