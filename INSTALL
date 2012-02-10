@@ -1,0 +1,15 @@
+To build BMOD you will need Bullet SDK (http://code.google.com/p/bullet/downloads/list).
+
+Build Bullet as a static lib. You will need these libs:
+  > BulletCollision
+  > BulletDynamics
+  > LinearMath
+
+Then compile BMOD source code (all .cpp-s) as shared lib.
+Link against previously mentioned libs.
+Also include following dirs:
+  > "amxmodx" form AmxModX SDK
+  > "metamod" from MetaMod SDK
+  > "dlls", "engine" and "common" from HLSDK
+  > "src" from Bullet SDK
+  
