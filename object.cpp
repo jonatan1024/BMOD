@@ -42,12 +42,8 @@ void bmodObject::activate(){
 	rigidBody->activate(true);
 }
 
-void bmodObject::setFriction(float friction){
-	rigidBody->setFriction(friction);
-}
-
-void bmodObject::setRestitution(float restitution){
-	rigidBody->setRestitution(restitution);
+btRigidBody * bmodObject::getRigidBody(){
+	return rigidBody;
 }
 
 bmodObject::~bmodObject(){

@@ -19,8 +19,7 @@ public:
 	edict_t * getEntity();
 	int getIslandTag();
 	void activate();
-	void setFriction(float friction);
-	void setRestitution(float restitution);
+	btRigidBody* getRigidBody();
 	~bmodObject();
 };
 
