@@ -34,14 +34,6 @@ edict_t *bmodObject::getEntity(){
 	return entity;
 }
 
-int bmodObject::getIslandTag(){
-	return rigidBody->getIslandTag();
-}
-
-void bmodObject::activate(){
-	rigidBody->activate(true);
-}
-
 btRigidBody * bmodObject::getRigidBody(){
 	return rigidBody;
 }

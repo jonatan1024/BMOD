@@ -28,8 +28,8 @@ bool bmodObjectList::remove(edict_t*e){
 
 bool bmodObjectList::activate(int obj){
 	for(int i=0;i<list_c;i++){
-		if(i != obj && list[i]->getIslandTag() == list[obj]->getIslandTag()){
-			list[i]->activate();
+		if(i != obj && list[i]->getRigidBody()->getIslandTag() == list[obj]->getRigidBody()->getIslandTag()){
+			list[i]->getRigidBody()->activate();
 			return 1;
 		}
 	}

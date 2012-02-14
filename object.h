@@ -17,8 +17,6 @@ private:
 public:
 	bmodObject(edict_t * e, int type, float mass, float x, float y, float z);
 	edict_t * getEntity();
-	int getIslandTag();
-	void activate();
 	btRigidBody* getRigidBody();
 	~bmodObject();
 };
