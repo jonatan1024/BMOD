@@ -1,13 +1,18 @@
 /*
 Creates a bmod object of given type, mass and size. Bmod object is subsequently hooked to given entity.
-Types:
-0 - sphere (x is radius)
-1 - box (x, y and z are half of box dimensions)
-2 - cylinder (same as box, x is radius; cylinder is situated along Z axis)
-3 - capsule (x is radius, y is distance between half spheres; capsule is situated along Z axis)
-4 - cone (x is radius, y is height; cone is situated along Z axis)
 */
 native bmod_object_add(ent,type,Float:mass,Float:x,Float:y,Float:z)
+
+/*
+Types of bmod objects.
+*/
+enum {
+	bmod_sphere = 0,	/* x is radius */
+	bmod_box,	/* x, y and z are half of box dimensions */
+	bmod_cylinder,	/* same as box, x is radius; cylinder is situated along Z axis */
+	bmod_capsule,	/* x is radius, y is distance between half spheres; capsule is situated along Z axis */
+	bmod_cone	/* x is radius, y is height; cone is situated along Z axis */
+};
 
 /*
 Destroys the bmod object hooked to given entity.
