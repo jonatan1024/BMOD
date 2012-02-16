@@ -63,13 +63,16 @@ bmodMotionState::~bmodMotionState(){
 }
 
 void bmodMotionState::getWorldTransform(btTransform &worldTrans) const {
-	//TODO: get rotation from entity; i should also get velocity and avelocity and apply it on created bullet object
-	worldTrans = btTransform(btQuaternion(0,0,0,1),
-		btVector3(entity->v.origin.x,entity->v.origin.y,	entity->v.origin.z));
+	worldTrans = btTransform(btQuaternion(0,0,0,1),btVector3(entity->v.origin.x,entity->v.origin.y,entity->v.origin.z));
+	worldTrans.getBasis().setEulerZYX(entity->v.angles.y,-entity->v.angles.x,entity->v.angles.z);
 }
 
 void bmodMotionState::setRigidBody(btRigidBody * body){
 	bt_body = body;
+	bt_body->setLinearVelocity(btVector3(entity->v.velocity.x, entity->v.velocity.y, entity->v.velocity.z));
+	bt_body->setAngularVelocity(btVector3(entity->v.avelocity.x, entity->v.avelocity.y, entity->v.avelocity.z));
+	//btVector3 gravity = g_bt_dynamicsWorld->getGravity();
+	//bt_body->setGravity(btVector3(gravity.x()*entity->v.gravity, gravity.y()*entity->v.gravity, gravity.z()*entity->v.gravity));	//relative gravity
 }
 
 //TODO: solve this shit with overloading

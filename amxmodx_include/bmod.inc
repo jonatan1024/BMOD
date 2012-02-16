@@ -1,7 +1,7 @@
 /*
-Creates a bmod object of given type, mass and size. Bmod object is subsequently hooked to given entity.
+Creates a bmod object of given type, mass and size (x,y,z). Bmod object is subsequently hooked to given entity.
 */
-native bmod_object_add(ent,type,Float:mass,Float:x,Float:y,Float:z)
+native bmod_object_add(ent,type,Float:mass,Float:size[3])
 
 /*
 Types of bmod objects.
@@ -28,6 +28,31 @@ native bmod_object_set_friction(ent,Float:friction)
 Set object restitution (bounciness)
 */
 native bmod_object_set_restitution(ent,Float:restitution)
+
+/*
+Set object gravity (default gravity is {0,0,-525})
+*/
+native bmod_object_set_gravity(ent,Float:gravity[3])
+
+/*
+Set object linear velocity
+*/
+native bmod_object_set_velocity(ent,Float:velocity[3])
+
+/*
+Set object angular velocity
+*/
+native bmod_object_set_avelocity(ent,Float:avelocity[3])
+
+/*
+Apply object force
+*/
+native bmod_object_apply_force(ent,Float:force[3])
+
+/*
+Apply object torque
+*/
+native bmod_object_apply_torque(ent,Float:torque[3])
 
 /*
 Set world friction.
