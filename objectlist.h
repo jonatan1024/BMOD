@@ -14,6 +14,7 @@ public:
 	bool remove(edict_t*);
 	bool activate(int);
 	bmodObject* find(edict_t*);
+	bmodObject* find_b(btCollisionObject*);
 	~bmodObjectList();
 };
 #endif

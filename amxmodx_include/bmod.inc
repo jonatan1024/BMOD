@@ -20,6 +20,11 @@ Destroys the bmod object hooked to given entity.
 native bmod_object_remove(ent)
 
 /*
+Return 1 if there is any object hooked to given entity.
+*/
+native bmod_object_check(ent)
+
+/*
 Set object friction.
 */
 native bmod_object_set_friction(ent,Float:friction)
@@ -55,6 +60,26 @@ Apply object torque
 native bmod_object_apply_torque(ent,Float:torque[3])
 
 /*
+Apply object force at relative position
+*/
+native bmod_object_apply_force_at(ent,Float:force[3],Float:pos[3])
+
+/*
+Get object friction.
+*/
+native Float:bmod_object_get_friction(ent)
+
+/*
+Get object restitution (bounciness)
+*/
+native Float:bmod_object_get_restitution(ent)
+
+/*
+Get object gravity
+*/
+native bmod_object_get_gravity(ent,Float:gravity[3])
+
+/*
 Set world friction.
 */
 native bmod_world_set_friction(Float:friction)
@@ -63,6 +88,21 @@ native bmod_world_set_friction(Float:friction)
 Set world restitution (bounciness)
 */
 native bmod_world_set_restitution(Float:restitution)
+
+/*
+Get world friction.
+*/
+native Float:bmod_world_get_friction()
+
+/*
+Get world restitution (bounciness)
+*/
+native Float:bmod_world_get_restitution()
+
+/*
+Do a traceline, return entity id or zero. Also may return hit point or normal.
+*/
+native bmod_traceline(Float:start[3],Float:end[3],Float:point[3],Float:normal[3])
 /* AMXX-Studio Notes - DO NOT MODIFY BELOW HERE
 *{\\ rtf1\\ ansi\\ deff0{\\ fonttbl{\\ f0\\ fnil Tahoma;}}\n\\ viewkind4\\ uc1\\ pard\\ lang5129\\ f0\\ fs16 \n\\ par }
 */
