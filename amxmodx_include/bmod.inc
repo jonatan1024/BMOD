@@ -1,18 +1,18 @@
 /*
-Creates a bmod object of given type, mass and size (x,y,z). Bmod object is subsequently hooked to given entity.
-*/
-native bmod_object_add(ent,type,Float:mass,Float:size[3])
-
-/*
 Types of bmod objects.
 */
 enum {
-	bmod_sphere = 0,	/* x is radius */
-	bmod_box,	/* x, y and z are half of box dimensions */
-	bmod_cylinder,	/* same as box, x is radius; cylinder is situated along Z axis */
-	bmod_capsule,	/* x is radius, y is distance between half spheres; capsule is situated along Z axis */
-	bmod_cone	/* x is radius, y is height; cone is situated along Z axis */
+	BMOD_sphere = 0,	/* x is radius */
+	BMOD_box,	/* x, y and z are half of box dimensions */
+	BMOD_cylinder,	/* same as box, x is radius; cylinder is situated along Z axis */
+	BMOD_capsule,	/* x is radius, y is distance between half spheres; capsule is situated along Z axis */
+	BMOD_cone	/* x is radius, y is height; cone is situated along Z axis */
 };
+
+/*
+Creates a bmod object of given type, mass and size (x,y,z). Bmod object is subsequently hooked to given entity.
+*/
+native bmod_object_add(ent,type,Float:mass,Float:size[3])
 
 /*
 Destroys the bmod object hooked to given entity.
@@ -24,40 +24,28 @@ Return 1 if there is any object hooked to given entity.
 */
 native bmod_object_check(ent)
 
-/*
-Set object friction.
-*/
-native bmod_object_set_friction(ent,Float:friction)
+enum BMOD_FL {
+	BMOD_FL_afactor,	//setAngularFactor only
+	BMOD_FL_friction,	//set/getFriction
+	BMOD_FL_restitution	//set/getRestitution
+};
+
+enum BMOD_VEC {
+	BMOD_VEC_afactor,	//set/getAngularFactor
+	BMOD_VEC_avelocity,	//set/getAngularVelocity
+	BMOD_VEC_afriction,	//set/getAnisotropicFriction
+	BMOD_VEC_gravity,	//set/getGravity
+	BMOD_VEC_factor,	//set/getLinearFactor
+	BMOD_VEC_velocity,	//set/getLinearVelocity
+	BMOD_VEC_force,	//applyCentralForce / getTotalForce
+	BMOD_VEC_torque	//applyTorque / getTotalTorque
+};
 
 /*
-Set object restitution (bounciness)
+Set object vars
 */
-native bmod_object_set_restitution(ent,Float:restitution)
-
-/*
-Set object gravity (default gravity is {0,0,-525})
-*/
-native bmod_object_set_gravity(ent,Float:gravity[3])
-
-/*
-Set object linear velocity
-*/
-native bmod_object_set_velocity(ent,Float:velocity[3])
-
-/*
-Set object angular velocity
-*/
-native bmod_object_set_avelocity(ent,Float:avelocity[3])
-
-/*
-Apply object force
-*/
-native bmod_object_apply_force(ent,Float:force[3])
-
-/*
-Apply object torque
-*/
-native bmod_object_apply_torque(ent,Float:torque[3])
+native bmod_object_set_float(ent,BMOD_FL:key,Float:float)
+native bmod_object_set_vector(ent,BMOD_VEC:key,Float:vector[3])
 
 /*
 Apply object force at relative position
@@ -65,39 +53,16 @@ Apply object force at relative position
 native bmod_object_apply_force_at(ent,Float:force[3],Float:pos[3])
 
 /*
-Get object friction.
+Get object vars
 */
-native Float:bmod_object_get_friction(ent)
+native Float:bmod_object_get_float(ent,BMOD_FL:key)
+native bmod_object_get_vector(ent,BMOD_VEC:key,Float:vector[3])
 
 /*
-Get object restitution (bounciness)
+Set/get world vars
 */
-native Float:bmod_object_get_restitution(ent)
-
-/*
-Get object gravity
-*/
-native bmod_object_get_gravity(ent,Float:gravity[3])
-
-/*
-Set world friction.
-*/
-native bmod_world_set_friction(Float:friction)
-
-/*
-Set world restitution (bounciness)
-*/
-native bmod_world_set_restitution(Float:restitution)
-
-/*
-Get world friction.
-*/
-native Float:bmod_world_get_friction()
-
-/*
-Get world restitution (bounciness)
-*/
-native Float:bmod_world_get_restitution()
+native bmod_world_set_float(BMOD_FL:key,Float:float)
+native Float:bmod_world_get_float(BMOD_FL:key)
 
 /*
 Do a traceline, return entity id or zero. Also may return hit point or normal.
