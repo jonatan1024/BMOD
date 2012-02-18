@@ -42,24 +42,29 @@ enum BMOD_VEC {
 };
 
 /*
-Set object vars
+Set object vars.
 */
 native bmod_object_set_float(ent,BMOD_FL:key,Float:float)
 native bmod_object_set_vector(ent,BMOD_VEC:key,Float:vector[3])
 
 /*
-Apply object force at relative position
+Apply object force at relative position.
 */
 native bmod_object_apply_force_at(ent,Float:force[3],Float:pos[3])
 
 /*
-Get object vars
+Get object vars.
 */
 native Float:bmod_object_get_float(ent,BMOD_FL:key)
 native bmod_object_get_vector(ent,BMOD_VEC:key,Float:vector[3])
 
 /*
-Set/get world vars
+Activate callback(forward) for given entity.
+*/
+native bmod_object_set_callback(ent,bool)
+
+/*
+Set/get world vars.
 */
 native bmod_world_set_float(BMOD_FL:key,Float:float)
 native Float:bmod_world_get_float(BMOD_FL:key)
@@ -68,6 +73,11 @@ native Float:bmod_world_get_float(BMOD_FL:key)
 Do a traceline, return entity id or zero. Also may return hit point or normal.
 */
 native bmod_traceline(Float:start[3],Float:end[3],Float:point[3],Float:normal[3])
+
+/*
+Forward called on objects collision.
+*/
+forward bmod_forward_contact(ent1,ent2,Float:distance)
 /* AMXX-Studio Notes - DO NOT MODIFY BELOW HERE
 *{\\ rtf1\\ ansi\\ deff0{\\ fonttbl{\\ f0\\ fnil Tahoma;}}\n\\ viewkind4\\ uc1\\ pard\\ lang5129\\ f0\\ fs16 \n\\ par }
 */

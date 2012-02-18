@@ -176,6 +176,18 @@ static cell AMX_NATIVE_CALL bmod_object_get_vector(AMX *amx, cell *params){
 	return 1;
 }
 
+static cell AMX_NATIVE_CALL bmod_object_set_callback(AMX *amx, cell *params){
+	bmodObject*object=g_bmod_objects->find(INDEXENT(params[1]));
+	if(!object)
+		return 0;
+	int flags = object->getRigidBody()->getCollisionFlags();
+	if(params[2])
+		object->getRigidBody()->setCollisionFlags(flags | btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
+	else
+		object->getRigidBody()->setCollisionFlags(flags & ~btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
+	return 1;
+}
+
 /*bmod_world*/
 
 static cell AMX_NATIVE_CALL bmod_world_set_float(AMX *amx, cell *params){
@@ -235,6 +247,7 @@ AMX_NATIVE_INFO amxxfunctions[] = {
 	{"bmod_object_apply_force_at",bmod_object_apply_force_at},
 	{"bmod_object_get_float",bmod_object_get_float},
 	{"bmod_object_get_vector",bmod_object_get_vector},
+	{"bmod_object_set_callback",bmod_object_set_callback},
 
 	{"bmod_world_set_float",bmod_world_set_float},
 	{"bmod_world_get_float",bmod_world_get_float},

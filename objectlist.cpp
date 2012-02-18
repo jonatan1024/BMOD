@@ -45,7 +45,7 @@ bmodObject* bmodObjectList::find(edict_t*e){
 	return 0;
 }
 
-bmodObject* bmodObjectList::find_b(btCollisionObject*body){
+bmodObject* bmodObjectList::find_b(const btCollisionObject*body){
 	for(int i=0;i<list_c;i++){
 		if(list[i]->getRigidBody() == body){
 			return list[i];
