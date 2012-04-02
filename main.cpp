@@ -8,8 +8,10 @@
 #include "objectlist.h"
 
 #define BMOD_GRAVITY -525 //-10m/s^2 -> -1000cm/s^2 -> convert to game units (1/1.905f)
-#define BMOD_FPS 60
-#define BMOD_MAX_STEPS 10
+
+//expecting min 10 FPS
+int g_bt_max_ssteps = 6;
+float g_bt_ftstep = 1.0/60;
 
 bmodObjectList * g_bmod_objects;
 btRigidBody* g_bmod_mapBody;
@@ -67,8 +69,11 @@ void ServerActivate_Post(edict_t *pEdictList, int edictCount, int clientMax)
 
 void StartFrame_Post()
 {
+	static float oldtime=0;
+	float newtime=g_engfuncs.pfnTime();
 	//step it
-	g_bt_dynamicsWorld->stepSimulation(1.0/BMOD_FPS,BMOD_MAX_STEPS);
+	g_bt_dynamicsWorld->stepSimulation(newtime-oldtime,g_bt_max_ssteps,g_bt_ftstep);
+	oldtime=newtime;
 	RETURN_META(MRES_IGNORED);
 }
 
