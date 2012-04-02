@@ -64,7 +64,7 @@ bmodMotionState::~bmodMotionState(){
 
 void bmodMotionState::getWorldTransform(btTransform &worldTrans) const {
 	worldTrans = btTransform(btQuaternion(0,0,0,1),btVector3(entity->v.origin.x,entity->v.origin.y,entity->v.origin.z));
-	worldTrans.getBasis().setEulerZYX(entity->v.angles.y,-entity->v.angles.x,entity->v.angles.z);
+	worldTrans.getBasis().setEulerZYX(entity->v.angles.z/RAD2DEG,-entity->v.angles.x/RAD2DEG,entity->v.angles.y/RAD2DEG);
 }
 
 void bmodMotionState::setRigidBody(btRigidBody * body){

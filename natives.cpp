@@ -5,8 +5,13 @@ extern bmodObjectList * g_bmod_objects;
 extern btRigidBody* g_bmod_mapBody;
 extern btDiscreteDynamicsWorld* g_bt_dynamicsWorld;
 
+extern int g_bt_max_ssteps;
+extern float g_bt_ftstep;
+
 enum{
+	BMOD_FL_adamping,	//set/getAngularDamping
 	BMOD_FL_afactor,	//setAngularFactor only
+	BMOD_FL_damping,	//set/getLinearDamping
 	BMOD_FL_friction,	//set/getFriction
 	BMOD_FL_restitution	//set/getRestitution
 };
@@ -22,10 +27,7 @@ enum{
 	BMOD_VEC_torque	//applyTorque / getTotalTorque
 };
 
-/*enum{
-	BMOD_FL2_damping,
-};
-
+/*
 enum{
 	BMOD_VEC2_force_at,
 };*/
@@ -61,8 +63,14 @@ static cell AMX_NATIVE_CALL bmod_object_set_float(AMX *amx, cell *params){
 	if(!object)
 		return 0;
 	switch(params[2]){
+	case BMOD_FL_adamping:
+		object->getRigidBody()->setDamping(object->getRigidBody()->getLinearDamping(),amx_ctof(params[3]));
+		break;
 	case BMOD_FL_afactor:
 		object->getRigidBody()->setAngularFactor(amx_ctof(params[3]));
+		break;
+	case BMOD_FL_damping:
+		object->getRigidBody()->setDamping(amx_ctof(params[3]),object->getRigidBody()->getAngularDamping());
 		break;
 	case BMOD_FL_friction:
 		object->getRigidBody()->setFriction(amx_ctof(params[3]));
@@ -130,6 +138,10 @@ static cell AMX_NATIVE_CALL bmod_object_get_float(AMX *amx, cell *params){
 	if(!object)
 		return 0;
 	switch(params[2]){
+	case BMOD_FL_adamping:
+		return amx_ftoc(object->getRigidBody()->getAngularDamping());
+	case BMOD_FL_damping:
+		return amx_ftoc(object->getRigidBody()->getLinearDamping());
 	case BMOD_FL_friction:
 		return amx_ftoc(object->getRigidBody()->getFriction());
 	case BMOD_FL_restitution:
@@ -192,7 +204,11 @@ static cell AMX_NATIVE_CALL bmod_object_set_callback(AMX *amx, cell *params){
 
 static cell AMX_NATIVE_CALL bmod_world_set_float(AMX *amx, cell *params){
 	switch(params[1]){
+	case BMOD_FL_adamping:
+		return 0;
 	case BMOD_FL_afactor:
+		return 0;
+	case BMOD_FL_damping:
 		return 0;
 	case BMOD_FL_friction:
 		g_bmod_mapBody->setFriction(amx_ctof(params[2]));
@@ -213,6 +229,13 @@ static cell AMX_NATIVE_CALL bmod_world_get_float(AMX *amx, cell *params){
 	}
 	return 0;
 }
+
+static cell AMX_NATIVE_CALL bmod_stepcfg(AMX *amx, cell *params){
+	g_bt_max_ssteps=params[1];
+	g_bt_ftstep=amx_ctof(params[2]);
+	return 1;
+}
+
 static cell AMX_NATIVE_CALL bmod_traceline(AMX *amx, cell *params){
 	cell * c;
 	c = g_fn_GetAmxAddr(amx, params[1]);
@@ -253,5 +276,7 @@ AMX_NATIVE_INFO amxxfunctions[] = {
 	{"bmod_world_get_float",bmod_world_get_float},
 
 	{"bmod_traceline",bmod_traceline},
+
+	{"bmod_stepcfg",bmod_stepcfg},
 	{NULL, NULL}
 };

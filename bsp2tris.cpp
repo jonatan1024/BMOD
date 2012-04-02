@@ -1,6 +1,3 @@
-// bsp2tris_test.cpp : Defines the entry point for the console application.
-//
-
 #include "bsp2tris.h"
 #include "bspfile.h"
 #include <stdio.h>

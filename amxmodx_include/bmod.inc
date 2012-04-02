@@ -25,7 +25,9 @@ Return 1 if there is any object hooked to given entity.
 native bmod_object_check(ent)
 
 enum BMOD_FL {
+	BMOD_FL_adamping,	//set/getAngularDamping
 	BMOD_FL_afactor,	//setAngularFactor only
+	BMOD_FL_damping,	//set/getLinearDamping
 	BMOD_FL_friction,	//set/getFriction
 	BMOD_FL_restitution	//set/getRestitution
 };
@@ -64,7 +66,7 @@ Activate callback(forward) for given entity.
 native bmod_object_set_callback(ent,bool)
 
 /*
-Set/get world vars.
+Set/get world vars. (friction & restitution only)
 */
 native bmod_world_set_float(BMOD_FL:key,Float:float)
 native Float:bmod_world_get_float(BMOD_FL:key)
@@ -78,6 +80,11 @@ native bmod_traceline(Float:start[3],Float:end[3],Float:point[3],Float:normal[3]
 Forward called on objects collision.
 */
 forward bmod_forward_contact(ent1,ent2,Float:distance)
-/* AMXX-Studio Notes - DO NOT MODIFY BELOW HERE
-*{\\ rtf1\\ ansi\\ deff0{\\ fonttbl{\\ f0\\ fnil Tahoma;}}\n\\ viewkind4\\ uc1\\ pard\\ lang5129\\ f0\\ fs16 \n\\ par }
+
+/*
+Configure bullet's stepSimulation. For more info see:
+http://bulletphysics.org/mediawiki-1.5.8/index.php/Stepping_The_World
+http://bulletphysics.com/Bullet/BulletFull/classbtDynamicsWorld.html#a5ab26a0d6e8b2b21fbde2ed8f8dd6294
+Default: timeStep=variable, maxSubSteps=6, fixedTimeStep=1/60
 */
+native bmod_stepcfg(maxSubSteps,Float:fixedTimeStep)
