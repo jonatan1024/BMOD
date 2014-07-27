@@ -4,7 +4,7 @@
 #include "object.h"
 #include <string.h>
 
-class bmodObjectList{
+class bmodObjectList {
 private:
 	bmodObject**list;
 	int list_c;

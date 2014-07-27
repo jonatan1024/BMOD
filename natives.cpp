@@ -8,7 +8,7 @@ extern btDiscreteDynamicsWorld* g_bt_dynamicsWorld;
 extern int g_bt_max_ssteps;
 extern float g_bt_ftstep;
 
-enum{
+enum {
 	BMOD_FL_adamping,	//set/getAngularDamping
 	BMOD_FL_afactor,	//setAngularFactor only
 	BMOD_FL_damping,	//set/getLinearDamping
@@ -16,15 +16,15 @@ enum{
 	BMOD_FL_restitution	//set/getRestitution
 };
 
-enum{
+enum {
 	BMOD_VEC_afactor,	//set/getAngularFactor
 	BMOD_VEC_avelocity,	//set/getAngularVelocity
 	BMOD_VEC_afriction,	//set/getAnisotropicFriction
 	BMOD_VEC_gravity,	//set/getGravity
 	BMOD_VEC_factor,	//set/getLinearFactor
 	BMOD_VEC_velocity,	//set/getLinearVelocity
-	BMOD_VEC_force,	//applyCentralForce / getTotalForce
-	BMOD_VEC_torque	//applyTorque / getTotalTorque
+	BMOD_VEC_force,		//applyCentralForce / getTotalForce
+	BMOD_VEC_torque		//applyTorque / getTotalTorque
 };
 
 /*
@@ -34,7 +34,7 @@ enum{
 
 /*bmod_object*/
 
-static cell AMX_NATIVE_CALL bmod_object_add(AMX *amx, cell *params){
+static cell AMX_NATIVE_CALL bmod_object_add(AMX *amx, cell *params) {
 	cell *c = g_fn_GetAmxAddr(amx, params[4]);
 	return g_bmod_objects->add(new bmodObject(
 		INDEXENT(params[1]),	//e
@@ -46,11 +46,11 @@ static cell AMX_NATIVE_CALL bmod_object_add(AMX *amx, cell *params){
 		));
 }
 
-static cell AMX_NATIVE_CALL bmod_object_remove(AMX *amx, cell *params){
+static cell AMX_NATIVE_CALL bmod_object_remove(AMX *amx, cell *params) {
 	return g_bmod_objects->remove(INDEXENT(params[1]));
 }
 
-static cell AMX_NATIVE_CALL bmod_object_check(AMX *amx, cell *params){
+static cell AMX_NATIVE_CALL bmod_object_check(AMX *amx, cell *params) {
 	if(g_bmod_objects->find(INDEXENT(params[1])))
 		return 1;
 	return 0;
@@ -58,19 +58,19 @@ static cell AMX_NATIVE_CALL bmod_object_check(AMX *amx, cell *params){
 
 /*bmod_object_set*/
 
-static cell AMX_NATIVE_CALL bmod_object_set_float(AMX *amx, cell *params){
-	bmodObject*object=g_bmod_objects->find(INDEXENT(params[1]));
+static cell AMX_NATIVE_CALL bmod_object_set_float(AMX *amx, cell *params) {
+	bmodObject*object = g_bmod_objects->find(INDEXENT(params[1]));
 	if(!object)
 		return 0;
-	switch(params[2]){
+	switch(params[2]) {
 	case BMOD_FL_adamping:
-		object->getRigidBody()->setDamping(object->getRigidBody()->getLinearDamping(),amx_ctof(params[3]));
+		object->getRigidBody()->setDamping(object->getRigidBody()->getLinearDamping(), amx_ctof(params[3]));
 		break;
 	case BMOD_FL_afactor:
 		object->getRigidBody()->setAngularFactor(amx_ctof(params[3]));
 		break;
 	case BMOD_FL_damping:
-		object->getRigidBody()->setDamping(amx_ctof(params[3]),object->getRigidBody()->getAngularDamping());
+		object->getRigidBody()->setDamping(amx_ctof(params[3]), object->getRigidBody()->getAngularDamping());
 		break;
 	case BMOD_FL_friction:
 		object->getRigidBody()->setFriction(amx_ctof(params[3]));
@@ -83,61 +83,61 @@ static cell AMX_NATIVE_CALL bmod_object_set_float(AMX *amx, cell *params){
 	return 1;
 }
 
-static cell AMX_NATIVE_CALL bmod_object_set_vector(AMX *amx, cell *params){
-	bmodObject*object=g_bmod_objects->find(INDEXENT(params[1]));
+static cell AMX_NATIVE_CALL bmod_object_set_vector(AMX *amx, cell *params) {
+	bmodObject*object = g_bmod_objects->find(INDEXENT(params[1]));
 	if(!object)
 		return 0;
 	cell *c = g_fn_GetAmxAddr(amx, params[3]);
-	switch(params[2]){
+	switch(params[2]) {
 	case BMOD_VEC_afactor:
-		object->getRigidBody()->setAngularFactor(btVector3(amx_ctof(c[0]),amx_ctof(c[1]),amx_ctof(c[2])));
+		object->getRigidBody()->setAngularFactor(btVector3(amx_ctof(c[0]), amx_ctof(c[1]), amx_ctof(c[2])));
 		break;
 	case BMOD_VEC_avelocity:
-		object->getRigidBody()->setAngularVelocity(btVector3(amx_ctof(c[0]),amx_ctof(c[1]),amx_ctof(c[2])));
+		object->getRigidBody()->setAngularVelocity(btVector3(amx_ctof(c[0]), amx_ctof(c[1]), amx_ctof(c[2])));
 		break;
 	case BMOD_VEC_afriction:
-		object->getRigidBody()->setAnisotropicFriction(btVector3(amx_ctof(c[0]),amx_ctof(c[1]),amx_ctof(c[2])));
+		object->getRigidBody()->setAnisotropicFriction(btVector3(amx_ctof(c[0]), amx_ctof(c[1]), amx_ctof(c[2])));
 		break;
 	case BMOD_VEC_gravity:
-		object->getRigidBody()->setGravity(btVector3(amx_ctof(c[0]),amx_ctof(c[1]),amx_ctof(c[2])));
+		object->getRigidBody()->setGravity(btVector3(amx_ctof(c[0]), amx_ctof(c[1]), amx_ctof(c[2])));
 		break;
 	case BMOD_VEC_factor:
-		object->getRigidBody()->setLinearFactor(btVector3(amx_ctof(c[0]),amx_ctof(c[1]),amx_ctof(c[2])));
+		object->getRigidBody()->setLinearFactor(btVector3(amx_ctof(c[0]), amx_ctof(c[1]), amx_ctof(c[2])));
 		break;
 	case BMOD_VEC_velocity:
-		object->getRigidBody()->setLinearVelocity(btVector3(amx_ctof(c[0]),amx_ctof(c[1]),amx_ctof(c[2])));
+		object->getRigidBody()->setLinearVelocity(btVector3(amx_ctof(c[0]), amx_ctof(c[1]), amx_ctof(c[2])));
 		break;
 	case BMOD_VEC_force:
-		object->getRigidBody()->applyCentralForce(btVector3(amx_ctof(c[0]),amx_ctof(c[1]),amx_ctof(c[2])));
+		object->getRigidBody()->applyCentralForce(btVector3(amx_ctof(c[0]), amx_ctof(c[1]), amx_ctof(c[2])));
 		break;
 	case BMOD_VEC_torque:
-		object->getRigidBody()->applyTorque(btVector3(amx_ctof(c[0]),amx_ctof(c[1]),amx_ctof(c[2])));
+		object->getRigidBody()->applyTorque(btVector3(amx_ctof(c[0]), amx_ctof(c[1]), amx_ctof(c[2])));
 		break;
 	}
 	object->getRigidBody()->activate(true);
 	return 1;
 }
 
-static cell AMX_NATIVE_CALL bmod_object_apply_force_at(AMX *amx, cell *params){
-	bmodObject*object=g_bmod_objects->find(INDEXENT(params[1]));
+static cell AMX_NATIVE_CALL bmod_object_apply_force_at(AMX *amx, cell *params) {
+	bmodObject*object = g_bmod_objects->find(INDEXENT(params[1]));
 	if(!object)
 		return 0;
 	cell *c = g_fn_GetAmxAddr(amx, params[2]);
 	cell *c2 = g_fn_GetAmxAddr(amx, params[3]);
 	object->getRigidBody()->applyForce(
-		btVector3(amx_ctof(c[0]),amx_ctof(c[1]),amx_ctof(c[2])),
-		btVector3(amx_ctof(c2[0]),amx_ctof(c2[1]),amx_ctof(c2[2])));
+		btVector3(amx_ctof(c[0]), amx_ctof(c[1]), amx_ctof(c[2])),
+		btVector3(amx_ctof(c2[0]), amx_ctof(c2[1]), amx_ctof(c2[2])));
 	object->getRigidBody()->activate(true);
 	return 1;
 }
 
 /*bmod_object_get*/
 
-static cell AMX_NATIVE_CALL bmod_object_get_float(AMX *amx, cell *params){
-	bmodObject*object=g_bmod_objects->find(INDEXENT(params[1]));
+static cell AMX_NATIVE_CALL bmod_object_get_float(AMX *amx, cell *params) {
+	bmodObject*object = g_bmod_objects->find(INDEXENT(params[1]));
 	if(!object)
 		return 0;
-	switch(params[2]){
+	switch(params[2]) {
 	case BMOD_FL_adamping:
 		return amx_ftoc(object->getRigidBody()->getAngularDamping());
 	case BMOD_FL_damping:
@@ -150,13 +150,13 @@ static cell AMX_NATIVE_CALL bmod_object_get_float(AMX *amx, cell *params){
 	return 0;
 }
 
-static cell AMX_NATIVE_CALL bmod_object_get_vector(AMX *amx, cell *params){
-	bmodObject*object=g_bmod_objects->find(INDEXENT(params[1]));
+static cell AMX_NATIVE_CALL bmod_object_get_vector(AMX *amx, cell *params) {
+	bmodObject*object = g_bmod_objects->find(INDEXENT(params[1]));
 	if(!object)
 		return 0;
 	cell *c = g_fn_GetAmxAddr(amx, params[3]);
 	btVector3 vec;
-	switch(params[2]){
+	switch(params[2]) {
 	case BMOD_VEC_afactor:
 		vec = object->getRigidBody()->getAngularFactor();
 		break;
@@ -182,14 +182,14 @@ static cell AMX_NATIVE_CALL bmod_object_get_vector(AMX *amx, cell *params){
 		vec = object->getRigidBody()->getTotalTorque();
 		break;
 	}
-	c[0]=amx_ftoc(vec.x());
-	c[1]=amx_ftoc(vec.y());
-	c[2]=amx_ftoc(vec.z());
+	c[0] = amx_ftoc(vec.x());
+	c[1] = amx_ftoc(vec.y());
+	c[2] = amx_ftoc(vec.z());
 	return 1;
 }
 
-static cell AMX_NATIVE_CALL bmod_object_set_callback(AMX *amx, cell *params){
-	bmodObject*object=g_bmod_objects->find(INDEXENT(params[1]));
+static cell AMX_NATIVE_CALL bmod_object_set_callback(AMX *amx, cell *params) {
+	bmodObject*object = g_bmod_objects->find(INDEXENT(params[1]));
 	if(!object)
 		return 0;
 	int flags = object->getRigidBody()->getCollisionFlags();
@@ -202,8 +202,8 @@ static cell AMX_NATIVE_CALL bmod_object_set_callback(AMX *amx, cell *params){
 
 /*bmod_world*/
 
-static cell AMX_NATIVE_CALL bmod_world_set_float(AMX *amx, cell *params){
-	switch(params[1]){
+static cell AMX_NATIVE_CALL bmod_world_set_float(AMX *amx, cell *params) {
+	switch(params[1]) {
 	case BMOD_FL_adamping:
 		return 0;
 	case BMOD_FL_afactor:
@@ -220,8 +220,8 @@ static cell AMX_NATIVE_CALL bmod_world_set_float(AMX *amx, cell *params){
 	return 1;
 }
 
-static cell AMX_NATIVE_CALL bmod_world_get_float(AMX *amx, cell *params){
-	switch(params[1]){
+static cell AMX_NATIVE_CALL bmod_world_get_float(AMX *amx, cell *params) {
+	switch(params[1]) {
 	case BMOD_FL_friction:
 		return amx_ftoc(g_bmod_mapBody->getFriction());
 	case BMOD_FL_restitution:
@@ -230,19 +230,19 @@ static cell AMX_NATIVE_CALL bmod_world_get_float(AMX *amx, cell *params){
 	return 0;
 }
 
-static cell AMX_NATIVE_CALL bmod_stepcfg(AMX *amx, cell *params){
-	g_bt_max_ssteps=params[1];
-	g_bt_ftstep=amx_ctof(params[2]);
+static cell AMX_NATIVE_CALL bmod_stepcfg(AMX *amx, cell *params) {
+	g_bt_max_ssteps = params[1];
+	g_bt_ftstep = amx_ctof(params[2]);
 	return 1;
 }
 
-static cell AMX_NATIVE_CALL bmod_traceline(AMX *amx, cell *params){
+static cell AMX_NATIVE_CALL bmod_traceline(AMX *amx, cell *params) {
 	cell * c;
 	c = g_fn_GetAmxAddr(amx, params[1]);
-	btVector3 start(amx_ctof(c[0]),amx_ctof(c[1]),amx_ctof(c[2]));
+	btVector3 start(amx_ctof(c[0]), amx_ctof(c[1]), amx_ctof(c[2]));
 	c = g_fn_GetAmxAddr(amx, params[2]);
-	btVector3 end(amx_ctof(c[0]),amx_ctof(c[1]),amx_ctof(c[2]));
-	btCollisionWorld::ClosestRayResultCallback ray(start,end);
+	btVector3 end(amx_ctof(c[0]), amx_ctof(c[1]), amx_ctof(c[2]));
+	btCollisionWorld::ClosestRayResultCallback ray(start, end);
 	g_bt_dynamicsWorld->rayTest(start, end, ray);
 	if(!ray.hasHit())
 		return 0;
@@ -261,22 +261,22 @@ static cell AMX_NATIVE_CALL bmod_traceline(AMX *amx, cell *params){
 }
 
 AMX_NATIVE_INFO amxxfunctions[] = {
-	{"bmod_object_add",bmod_object_add},
-	{"bmod_object_remove",bmod_object_remove},
-	{"bmod_object_check",bmod_object_check},
+	{"bmod_object_add", bmod_object_add},
+	{"bmod_object_remove", bmod_object_remove},
+	{"bmod_object_check", bmod_object_check},
 
-	{"bmod_object_set_float",bmod_object_set_float},
-	{"bmod_object_set_vector",bmod_object_set_vector},
-	{"bmod_object_apply_force_at",bmod_object_apply_force_at},
-	{"bmod_object_get_float",bmod_object_get_float},
-	{"bmod_object_get_vector",bmod_object_get_vector},
-	{"bmod_object_set_callback",bmod_object_set_callback},
+	{"bmod_object_set_float", bmod_object_set_float},
+	{"bmod_object_set_vector", bmod_object_set_vector},
+	{"bmod_object_apply_force_at", bmod_object_apply_force_at},
+	{"bmod_object_get_float", bmod_object_get_float},
+	{"bmod_object_get_vector", bmod_object_get_vector},
+	{"bmod_object_set_callback", bmod_object_set_callback},
 
-	{"bmod_world_set_float",bmod_world_set_float},
-	{"bmod_world_get_float",bmod_world_get_float},
+	{"bmod_world_set_float", bmod_world_set_float},
+	{"bmod_world_get_float", bmod_world_get_float},
 
-	{"bmod_traceline",bmod_traceline},
+	{"bmod_traceline", bmod_traceline},
 
-	{"bmod_stepcfg",bmod_stepcfg},
+	{"bmod_stepcfg", bmod_stepcfg},
 	{NULL, NULL}
 };
