@@ -3,20 +3,19 @@
 #include <btBulletDynamicsCommon.h>
 #include <stdio.h>
 
-#include "object.h"
-#include "bsp2tris.h"
-#include "objectlist.h"
+#include <vector>
 
-//#define BMOD_GRAVITY -525 //-10m/s^2 -> -1000cm/s^2 -> convert to game units (1/1.905f)
-#define BMOD_GRAVITY -1000
+#include "object.h"
+//#include "bsp2tris.h"
+//#include "objectlist.h"
+
+#define BMOD_GRAVITY -525 //-10m/s^2 -> -1000cm/s^2 -> convert to game units (1/1.905f)
 
 //expecting min 10 FPS
 int g_bt_max_ssteps = 6;
 float g_bt_ftstep = 1.0 / 60;
 
-bmodObjectList * g_bmod_objects;
-btRigidBody* g_bmod_mapBody;
-btCollisionShape* g_bmod_mapShape;
+std::vector<bmodObject*> g_bmod_objects;
 
 extern AMX_NATIVE_INFO amxxfunctions[];
 
@@ -41,16 +40,23 @@ void OnAmxxAttach() {
 	RETURN_META(MRES_IGNORED);
 }
 
-tris_s * g_bmod_tris;
+//tris_s * g_bmod_tris;
 
 void ServerActivate_Post(edict_t *pEdictList, int edictCount, int clientMax) {
 	MF_Log("activated");
 
+	//TODO load map and handle entities
+	btCollisionShape * g_bmod_mapShape = new btStaticPlaneShape(btVector3(0, 0, 1), 0);
+	btDefaultMotionState* motionState = new btDefaultMotionState();
+	btRigidBody::btRigidBodyConstructionInfo rigidBodyCI(0, motionState, g_bmod_mapShape, btVector3(0, 0, 0));
+	btRigidBody * g_bmod_mapBody = new btRigidBody(rigidBodyCI);
+	g_bt_dynamicsWorld->addRigidBody(g_bmod_mapBody);
+
 	//get bsp path
-	char gamedir[16];
-	GET_GAME_DIR(gamedir);
-	char bspname[64];
-	sprintf(bspname, "%s/maps/%s.bsp", gamedir, STRING(gpGlobals->mapname));
+	//char gamedir[16];
+	//GET_GAME_DIR(gamedir);
+	//char bspname[64];
+	//sprintf(bspname, "%s/maps/%s.bsp", gamedir, STRING(gpGlobals->mapname));
 	//load the map
 
 	//g_bmod_tris = bsp2tris(bspname, 0);
@@ -61,13 +67,17 @@ void ServerActivate_Post(edict_t *pEdictList, int edictCount, int clientMax) {
 	//g_bmod_mapBody = new btRigidBody(rigidBodyCI);
 	//g_bt_dynamicsWorld->addRigidBody(g_bmod_mapBody);
 
-	//init object list
-	g_bmod_objects = new bmodObjectList();
-
 	RETURN_META(MRES_IGNORED);
 }
 
-void StartFrame_Post() {
+void StartFrame() {
+	//update immovable objects
+	for(std::vector<bmodObject*>::iterator it = g_bmod_objects.begin(); it != g_bmod_objects.end(); ++it) {
+		//MF_Log("%d: %d %f", it - g_bmod_objects.begin(), (*it)->isImmovable(), INDEXENT((*it)->getEntities()->back())->v.origin.z);
+		if((*it)->isImmovable())
+			(*it)->update();
+	}
+
 	static float oldtime = 0;
 	float newtime = g_engfuncs.pfnTime();
 	//step it
@@ -80,21 +90,28 @@ void ServerDeactivate_Post() {
 	MF_Log("deactivated");
 
 	//unload objects
-	delete g_bmod_objects;
+	for(std::vector<bmodObject*>::iterator it = g_bmod_objects.begin(); it != g_bmod_objects.end(); ++it) {
+		delete *it;
+	}
+	g_bmod_objects.clear();
+	g_bmod_objects.resize(0);
+
 
 	//unload the map
-	g_bt_dynamicsWorld->removeRigidBody(g_bmod_mapBody);
-	delete g_bmod_mapBody->getMotionState();
-	delete g_bmod_mapBody;
-	delete g_bmod_mapShape;
-	free(g_bmod_tris->indices);
-	free(g_bmod_tris->vertices);
-	free(g_bmod_tris);
+	//g_bt_dynamicsWorld->removeRigidBody(g_bmod_mapBody);
+	//delete g_bmod_mapBody->getMotionState();
+	//delete g_bmod_mapBody;
+	//delete g_bmod_mapShape;
+	//free(g_bmod_tris->indices);
+	//free(g_bmod_tris->vertices);
+	//free(g_bmod_tris);
 	RETURN_META(MRES_IGNORED);
 }
 
 void OnAmxxDetach() {
 	MF_Log("detached");
+
+	g_bmod_objects.shrink_to_fit();
 
 	//unload bullet stuff
 	delete g_bt_dynamicsWorld;

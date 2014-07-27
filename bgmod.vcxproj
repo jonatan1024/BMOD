@@ -1,0 +1,88 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{65597046-584B-4A40-8C55-FD5A6703893B}</ProjectGuid>
+    <RootNamespace>bgmod</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <IncludePath>C:\_projekty\_common\hlsdk-2.3-p4\multiplayer\dlls;C:\_projekty\_common\bullet-2.82-r2704\src;C:\_projekty\_common\hlsdk-2.3-p4\multiplayer\common;C:\_projekty\_common\hlsdk-2.3-p4\multiplayer\engine;C:\_projekty\_common\metamod-p-code-ab650f41a7549282da60312a1d56fee2cc297161\metamod;C:\_projekty\_common\amxmodx-central-2ae84f7c0a97\amxmodx;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\_projekty\_common\bullet-2.82-r2704\lib;$(LibraryPath)</LibraryPath>
+    <TargetName>bmod_amxx</TargetName>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>BulletCollision_vs2010.lib;BulletDynamics_vs2010.lib;LinearMath_vs2010.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <PostBuildEvent>
+      <Command>copy /Y $(TargetPath) c:\SteamGames\Half-Life\cstrike\addons\amxmodx\modules\
+
+copy /Y $(ProjectDir)\amxmodx_include\bmod.inc c:\SteamGames\Half-Life\cstrike\addons\amxmodx\scripting\include\</Command>
+    </PostBuildEvent>
+    <PostBuildEvent>
+      <Message>Copy DLL &amp; INC</Message>
+    </PostBuildEvent>
+    <CustomBuildStep>
+      <Message />
+    </CustomBuildStep>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="bsp2tris.cpp" />
+    <ClCompile Include="forwards.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="natives.cpp" />
+    <ClCompile Include="object.cpp" />
+    <ClCompile Include="sdk\amxxmodule.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="bsp2tris.h" />
+    <ClInclude Include="bspfile.h" />
+    <ClInclude Include="object.h" />
+    <ClInclude Include="sdk\amxxmodule.h" />
+    <ClInclude Include="sdk\moduleconfig.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="amxmodx_include\bmod.inc" />
+    <None Include="bmod_logo\bmod.svg" />
+    <None Include="INSTALL" />
+    <None Include="README" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="bmod_logo\bmod.png" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

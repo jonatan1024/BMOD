@@ -1,0 +1,88 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Source Files\sdk">
+      <UniqueIdentifier>{7f5c3406-62bf-40e9-9d02-a8afa872beb0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\sdk">
+      <UniqueIdentifier>{896a449b-43b5-4cf8-84c1-b9e76b423e5a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Other Files">
+      <UniqueIdentifier>{d8e45413-149e-4113-af07-5c517d0eaaa5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Other Files\amxmodx_include">
+      <UniqueIdentifier>{84dde027-e538-49db-bc30-87946e7a9fb9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Other Files\bmod_logo">
+      <UniqueIdentifier>{c632d82e-4527-4df9-a201-c77c6df244c4}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="bsp2tris.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="forwards.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="natives.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="object.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="sdk\amxxmodule.cpp">
+      <Filter>Source Files\sdk</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="bsp2tris.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="bspfile.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="object.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sdk\amxxmodule.h">
+      <Filter>Header Files\sdk</Filter>
+    </ClInclude>
+    <ClInclude Include="sdk\moduleconfig.h">
+      <Filter>Header Files\sdk</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="INSTALL">
+      <Filter>Other Files</Filter>
+    </None>
+    <None Include="README">
+      <Filter>Other Files</Filter>
+    </None>
+    <None Include="amxmodx_include\bmod.inc">
+      <Filter>Other Files\amxmodx_include</Filter>
+    </None>
+    <None Include="bmod_logo\bmod.svg">
+      <Filter>Other Files\bmod_logo</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="bmod_logo\bmod.png">
+      <Filter>Other Files\bmod_logo</Filter>
+    </Image>
+  </ItemGroup>
+</Project>

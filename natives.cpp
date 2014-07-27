@@ -1,61 +1,167 @@
 #include "sdk/amxxmodule.h"
-#include "objectlist.h"
 
-extern bmodObjectList * g_bmod_objects;
-extern btRigidBody* g_bmod_mapBody;
+#include "object.h"
+#include <vector>
+
+extern std::vector<bmodObject*> g_bmod_objects;
 extern btDiscreteDynamicsWorld* g_bt_dynamicsWorld;
 
 extern int g_bt_max_ssteps;
 extern float g_bt_ftstep;
 
-enum {
-	BMOD_FL_adamping,	//set/getAngularDamping
-	BMOD_FL_afactor,	//setAngularFactor only
-	BMOD_FL_damping,	//set/getLinearDamping
-	BMOD_FL_friction,	//set/getFriction
-	BMOD_FL_restitution	//set/getRestitution
-};
+/*
+int bmod_obj_new(char * model);
+*/
+static cell AMX_NATIVE_CALL bmod_obj_new(AMX *amx, cell *params) {
+	int len;
+	char * model = MF_GetAmxString(amx, params[1], 0, &len);
 
-enum {
-	BMOD_VEC_afactor,	//set/getAngularFactor
-	BMOD_VEC_avelocity,	//set/getAngularVelocity
-	BMOD_VEC_afriction,	//set/getAnisotropicFriction
-	BMOD_VEC_gravity,	//set/getGravity
-	BMOD_VEC_factor,	//set/getLinearFactor
-	BMOD_VEC_velocity,	//set/getLinearVelocity
-	BMOD_VEC_force,		//applyCentralForce / getTotalForce
-	BMOD_VEC_torque		//applyTorque / getTotalTorque
-};
+	g_bmod_objects.push_back(new bmodObject(model));
+	return g_bmod_objects.size() - 1;
+}
 
 /*
-enum{
-	BMOD_VEC2_force_at,
-};*/
-
-/*bmod_object*/
-
-static cell AMX_NATIVE_CALL bmod_object_add(AMX *amx, cell *params) {
-	cell *c = g_fn_GetAmxAddr(amx, params[4]);
-	return g_bmod_objects->add(new bmodObject(
-		INDEXENT(params[1]),	//e
-		params[2],	//type
-		amx_ctof(params[3]),	//mass
-		amx_ctof(c[0]),	//x
-		amx_ctof(c[1]),	//y
-		amx_ctof(c[2])	//z
-		));
+bool bmod_obj_delete(int obj);
+*/
+static cell AMX_NATIVE_CALL bmod_obj_delete(AMX *amx, cell *params) {
+	int index = params[1];
+	if(index < 0 || index >= g_bmod_objects.size())
+		return false;
+	delete g_bmod_objects[index];
+	g_bmod_objects.erase(g_bmod_objects.begin() + index);
+	return true;
 }
 
-static cell AMX_NATIVE_CALL bmod_object_remove(AMX *amx, cell *params) {
-	return g_bmod_objects->remove(INDEXENT(params[1]));
+/*
+int bmod_obj_from_ent(int ent);
+*/
+static cell AMX_NATIVE_CALL bmod_obj_from_ent(AMX *amx, cell *params) {
+	edict_t * ent = INDEXENT(params[1]);
+	if(!ent)
+		return -1;
+
+	/*if(ent->v.solid != SOLID_BSP)
+		return -1;*/
+
+	const char * model = STRING(ent->v.model);
+	if(!model || !model[0])
+		return -1;
+
+	bmodObject * obj = new bmodObject(model);
+	g_bmod_objects.push_back(obj);
+	obj->assignEntity(params[1]);
+	obj->update();
+
+	return g_bmod_objects.size() - 1;
 }
 
-static cell AMX_NATIVE_CALL bmod_object_check(AMX *amx, cell *params) {
-	if(g_bmod_objects->find(INDEXENT(params[1])))
-		return 1;
+/*
+int bmod_obj_assign_ent(int obj, int ent);
+*/
+static cell AMX_NATIVE_CALL bmod_obj_assign_ent(AMX *amx, cell *params) {
+	int objindex = params[1];
+	if(objindex < 0 || objindex >= g_bmod_objects.size())
+		return -1;
+	int entindex = params[2];
+	if(!INDEXENT(entindex))
+		return -1;
+	return g_bmod_objects[objindex]->assignEntity(entindex);
+}
+
+/*
+int bmod_obj_remove_ent(int obj, int ent);
+*/
+static cell AMX_NATIVE_CALL bmod_obj_remove_ent(AMX *amx, cell *params) {
+	int objindex = params[1];
+	if(objindex < 0 || objindex >= g_bmod_objects.size())
+		return -1;
+	int entindex = params[2];
+	if(!INDEXENT(entindex))
+		return -1;
+	return g_bmod_objects[objindex]->removeEntity(entindex);
+}
+
+/*
+int bmod_obj_get_ents(int obj);
+*/
+static cell AMX_NATIVE_CALL bmod_obj_get_ents(AMX *amx, cell *params) {
+	int objindex = params[1];
+	if(objindex < 0 || objindex >= g_bmod_objects.size())
+		return -1;
+
+//TDOODOODODO TODO
+
 	return 0;
 }
 
+/*
+int bmod_obj_by_ent(int ent);
+*/
+static cell AMX_NATIVE_CALL bmod_obj_by_ent(AMX *amx, cell *params) {
+	int entindex = params[2];
+	if(!INDEXENT(entindex))
+		return -1;
+
+	for(std::vector<bmodObject*>::iterator it = g_bmod_objects.begin(); it != g_bmod_objects.end(); ++it) {
+		std::list<int> * ents = (*it)->getEntities();
+		for(std::list<int>::iterator it2 = ents->begin(); it2 != ents->end(); ++it) {
+			if(entindex == *it2) {
+				return it - g_bmod_objects.begin();
+			}
+		}
+	}
+
+	return -1;
+}
+
+/*
+bool bmod_obj_setvar(int obj, char * var, ... );
+*/
+static cell AMX_NATIVE_CALL bmod_obj_setvar(AMX *amx, cell *params) {
+	int index = params[1];
+	if(index < 0 || index >= g_bmod_objects.size())
+		return false;
+
+	//TODO
+	//delme
+	g_bmod_objects[index]->setMass(1);
+
+	return true;
+}
+
+/*
+bool bmod_obj_getvar(int obj, char * var, ... );
+*/
+static cell AMX_NATIVE_CALL bmod_obj_getvar(AMX *amx, cell *params) {
+	int index = params[1];
+	if(index < 0 || index >= g_bmod_objects.size())
+		return false;
+
+	//TODO
+
+	return true;
+}
+
+/*
+... bmod_traceline( ... );
+*/
+static cell AMX_NATIVE_CALL bmod_traceline(AMX *amx, cell *params) {
+
+	//TODO
+
+	return true;
+}
+
+/*
+void bmod_stepcfg(int max_ssteps, float ftstep);
+*/
+static cell AMX_NATIVE_CALL bmod_stepcfg(AMX *amx, cell *params) {
+	g_bt_max_ssteps = params[1];
+	g_bt_ftstep = amx_ctof(params[2]);
+	return 0;
+}
+
+#if 0
 /*bmod_object_set*/
 
 static cell AMX_NATIVE_CALL bmod_object_set_float(AMX *amx, cell *params) {
@@ -230,12 +336,6 @@ static cell AMX_NATIVE_CALL bmod_world_get_float(AMX *amx, cell *params) {
 	return 0;
 }
 
-static cell AMX_NATIVE_CALL bmod_stepcfg(AMX *amx, cell *params) {
-	g_bt_max_ssteps = params[1];
-	g_bt_ftstep = amx_ctof(params[2]);
-	return 1;
-}
-
 static cell AMX_NATIVE_CALL bmod_traceline(AMX *amx, cell *params) {
 	cell * c;
 	c = g_fn_GetAmxAddr(amx, params[1]);
@@ -260,20 +360,20 @@ static cell AMX_NATIVE_CALL bmod_traceline(AMX *amx, cell *params) {
 	return ENTINDEX(object->getEntity());
 }
 
+#endif
+
 AMX_NATIVE_INFO amxxfunctions[] = {
-	{"bmod_object_add", bmod_object_add},
-	{"bmod_object_remove", bmod_object_remove},
-	{"bmod_object_check", bmod_object_check},
+	{"bmod_obj_new", bmod_obj_new},
+	{"bmod_obj_delete", bmod_obj_delete},
+	{"bmod_obj_from_ent", bmod_obj_from_ent},
 
-	{"bmod_object_set_float", bmod_object_set_float},
-	{"bmod_object_set_vector", bmod_object_set_vector},
-	{"bmod_object_apply_force_at", bmod_object_apply_force_at},
-	{"bmod_object_get_float", bmod_object_get_float},
-	{"bmod_object_get_vector", bmod_object_get_vector},
-	{"bmod_object_set_callback", bmod_object_set_callback},
+	{"bmod_obj_assign_ent", bmod_obj_assign_ent},
+	{"bmod_obj_remove_ent", bmod_obj_remove_ent},
+	{"bmod_obj_get_ents", bmod_obj_get_ents},
+	{"bmod_obj_by_ent", bmod_obj_by_ent},
 
-	{"bmod_world_set_float", bmod_world_set_float},
-	{"bmod_world_get_float", bmod_world_get_float},
+	{"bmod_obj_setvar", bmod_obj_setvar},
+	{"bmod_obj_getvar", bmod_obj_getvar},
 
 	{"bmod_traceline", bmod_traceline},
 

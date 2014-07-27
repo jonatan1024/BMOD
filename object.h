@@ -5,6 +5,8 @@
 #include <extdll.h>//TODO: is it really nessesary?
 #include <btBulletDynamicsCommon.h>
 
+#include <list>
+
 extern btDiscreteDynamicsWorld* g_bt_dynamicsWorld;
 
 #define RAD2DEG 57.2957795
@@ -13,24 +15,27 @@ class bmodObject {
 private:
 	btRigidBody* rigidBody;
 	btCollisionShape* shape;
-	edict_t * entity;
+	std::list<int> entities;
 public:
-	bmodObject(edict_t * e, int type, float mass, float x, float y, float z);
-	edict_t * getEntity();
+	//bmodObject();
+	bmodObject(const char * model);
+	std::list<int> * getEntities();
+	int assignEntity(int entity);
+	int removeEntity(int entity);
+	void setMass(float mass);
+	bool isImmovable();
 	btRigidBody* getRigidBody();
+	void update();
 	~bmodObject();
 };
 
 class bmodMotionState : public btMotionState {
 public:
-	bmodMotionState(edict_t * entity);
+	bmodMotionState(bmodObject * obj);
 	virtual ~bmodMotionState();
 	virtual void getWorldTransform(btTransform &worldTrans) const;
 	virtual void setWorldTransform(const btTransform &worldTrans);
-	void setRigidBody(btRigidBody*body);
 protected:
-	//float offset[3];//origin offset
-	edict_t * entity;
-	btRigidBody * bt_body;
+	bmodObject * obj;
 };
 #endif
