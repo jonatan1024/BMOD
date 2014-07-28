@@ -1,6 +1,7 @@
 #include "model.h"
 #include <map>
 #include <string>
+#include "bspfile.h"
 
 typedef std::map<std::string, btCollisionShape*> modelmap;
 
@@ -33,9 +34,104 @@ bool getBMODShape(const char * model, btCollisionShape** shape) {
 	return true;
 }
 
+inline int ___bsp_get_vertex(int edge, int * surfedges, dedge_t * edges) {
+	int se = surfedges[edge];
+	return (se < 0) ? edges[-se].v[1] : edges[se].v[0];
+}
+
 bool getBSPShape(FILE * bspfile, int modelnum, btCollisionShape ** shape) {
-	//TODO BSP HANDLE
-	return false;
+	//modelnum = 4;
+	//read header
+	dheader_t header;
+	fseek(bspfile, 0, SEEK_SET);
+	fread(&header, sizeof(header), 1, bspfile);
+
+	//read model
+	dmodel_t model;
+	fseek(bspfile, header.lumps[LUMP_MODELS].fileofs + sizeof(model)*modelnum, SEEK_SET);
+	fread(&model, sizeof(model), 1, bspfile);
+
+	if(!model.numfaces)
+		return false;
+
+	//alloc & read faces, surfedges, edges, vertices
+	fseek(bspfile, header.lumps[LUMP_FACES].fileofs, SEEK_SET);
+	dface_t * faces = new dface_t[header.lumps[LUMP_FACES].filelen / sizeof(dface_t)];
+	fread(faces, 1, header.lumps[LUMP_FACES].filelen, bspfile);
+
+	fseek(bspfile, header.lumps[LUMP_SURFEDGES].fileofs, SEEK_SET);
+	int * surfedges = new int[header.lumps[LUMP_SURFEDGES].filelen / sizeof(int)];
+	fread(surfedges, 1, header.lumps[LUMP_SURFEDGES].filelen, bspfile);
+
+	fseek(bspfile, header.lumps[LUMP_EDGES].fileofs, SEEK_SET);
+	dedge_t * edges = new dedge_t[header.lumps[LUMP_EDGES].filelen / sizeof(dedge_t)];
+	fread(edges, 1, header.lumps[LUMP_EDGES].filelen, bspfile);
+
+	fseek(bspfile, header.lumps[LUMP_VERTEXES].fileofs, SEEK_SET);
+	dvertex_t * vertices = new dvertex_t[header.lumps[LUMP_VERTEXES].filelen / sizeof(dvertex_t)];
+	fread(vertices, 1, header.lumps[LUMP_VERTEXES].filelen, bspfile);
+
+	//alloc space for indices
+	//let's say there are faces with maximum of 32 vertices
+	int * temp_indices = new int[model.numfaces * 3 * 32];
+	int tri_indices_c = 0;
+
+	//int se, v, index = 0, temp_vertices = 0;
+	for(int i_f = model.firstface; i_f < model.firstface + model.numfaces; i_f++) {
+		int v1 = ___bsp_get_vertex(faces[i_f].firstedge, surfedges, edges);
+		int v2 = ___bsp_get_vertex(faces[i_f].firstedge + 1, surfedges, edges);
+		for(int i_v = faces[i_f].firstedge + 2; i_v < faces[i_f].firstedge + faces[i_f].numedges; i_v++) {
+			int v3 = ___bsp_get_vertex(i_v, surfedges, edges);
+			temp_indices[tri_indices_c++] = v1;
+			temp_indices[tri_indices_c++] = v2;
+			temp_indices[tri_indices_c++] = v3;
+			v2 = v3;
+		}
+	}
+
+	//get used portion of vertices
+	int min = temp_indices[0];
+	int max = temp_indices[0];
+	for(int i = 1; i < tri_indices_c; i++) {
+		if(temp_indices[i] > max)
+			max = temp_indices[i];
+		if(temp_indices[i] < min)
+			min = temp_indices[i];
+	}
+	max++;
+
+	//alloc space for vertices and copy them
+	int tri_vertices_c = max - min;
+	float * tri_vertices = new float[tri_vertices_c * 3];
+	for(int i = 0; i < tri_vertices_c; i++) {
+		tri_vertices[i * 3 + 0] = vertices[min + i].point[0];
+		tri_vertices[i * 3 + 1] = vertices[min + i].point[1];
+		tri_vertices[i * 3 + 2] = vertices[min + i].point[2];
+	}
+
+	//alloc space for indices and copy them
+	int * tri_indices = new int[tri_indices_c];
+	for(int i = 0; i < tri_indices_c; i++) {
+		tri_indices[i] = temp_indices[i] - min;
+	}
+
+	//pass trimesh to bullet
+	btTriangleIndexVertexArray * map_trimesh = new btTriangleIndexVertexArray(tri_indices_c / 3, tri_indices, 3 * sizeof(int), tri_vertices_c, tri_vertices, 3 * sizeof(float));
+	*shape = new btBvhTriangleMeshShape(map_trimesh, true);
+
+
+	//freedom!
+	delete faces;
+	delete surfedges;
+	delete edges;
+	delete vertices;
+
+	delete temp_indices;
+
+	//delete tri_vertices;
+	//delete tri_indices;
+
+	return true;
 }
 
 FILE * fmdlopen(const char * model) {
@@ -73,14 +169,14 @@ bool getFILEShape(FILE * file, btCollisionShape** shape) {
 	unsigned long magic;
 	fread(&magic, 4, 1, file);
 	if(magic == 0x0000001E) {
-		if(!getBSPShape(file, 0, shape)) 
+		if(!getBSPShape(file, 0, shape))
 			return false;
 	}
 	else if(magic == 0x54534449) {
-		if(!getMDLShape(file, shape)) 
+		if(!getMDLShape(file, shape))
 			return false;
 	}
-	else 
+	else
 		return false;
 	return true;
 }
