@@ -48,6 +48,12 @@
     <ClCompile Include="sdk\amxxmodule.cpp">
       <Filter>Source Files\sdk</Filter>
     </ClCompile>
+    <ClCompile Include="call.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="model.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="bsp2tris.h">
@@ -64,6 +70,12 @@
     </ClInclude>
     <ClInclude Include="sdk\moduleconfig.h">
       <Filter>Header Files\sdk</Filter>
+    </ClInclude>
+    <ClInclude Include="call.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="model.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -6,14 +6,16 @@
 #include <vector>
 
 #include "object.h"
-//#include "bsp2tris.h"
-//#include "objectlist.h"
+#include "model.h"
 
 #define BMOD_GRAVITY -525 //-10m/s^2 -> -1000cm/s^2 -> convert to game units (1/1.905f)
 
 //expecting min 10 FPS
 int g_bt_max_ssteps = 6;
 float g_bt_ftstep = 1.0 / 60;
+
+char g_game_dir[16];
+char g_bspname[64];
 
 std::vector<bmodObject*> g_bmod_objects;
 
@@ -30,6 +32,8 @@ void OnAmxxAttach() {
 	MF_Log("attached");
 	MF_AddNatives(amxxfunctions);
 
+	GET_GAME_DIR(g_game_dir);
+
 	//shitload of bullet init stuff
 	g_bt_broadphase = new btDbvtBroadphase();
 	g_bt_collisionConfiguration = new btDefaultCollisionConfiguration();
@@ -44,6 +48,9 @@ void OnAmxxAttach() {
 
 void ServerActivate_Post(edict_t *pEdictList, int edictCount, int clientMax) {
 	MF_Log("activated");
+
+	strcpy(g_bspname, STRING(gpGlobals->mapname));
+	strcat(g_bspname, ".bsp");
 
 	//TODO load map and handle entities
 	btCollisionShape * g_bmod_mapShape = new btStaticPlaneShape(btVector3(0, 0, 1), 0);
@@ -95,6 +102,9 @@ void ServerDeactivate_Post() {
 	}
 	g_bmod_objects.clear();
 	g_bmod_objects.resize(0);
+
+	//clear models
+	clearModels();
 
 
 	//unload the map

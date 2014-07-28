@@ -2,6 +2,7 @@
 
 #include "object.h"
 #include <vector>
+#include "call.h"
 
 extern std::vector<bmodObject*> g_bmod_objects;
 extern btDiscreteDynamicsWorld* g_bt_dynamicsWorld;
@@ -115,30 +116,30 @@ static cell AMX_NATIVE_CALL bmod_obj_by_ent(AMX *amx, cell *params) {
 }
 
 /*
-bool bmod_obj_setvar(int obj, char * var, ... );
+bool bmod_obj_call(int obj, char * func, ... );
 */
-static cell AMX_NATIVE_CALL bmod_obj_setvar(AMX *amx, cell *params) {
+static cell AMX_NATIVE_CALL bmod_obj_call(AMX *amx, cell *params) {
 	int index = params[1];
 	if(index < 0 || index >= g_bmod_objects.size())
 		return false;
 
-	//TODO
-	//delme
-	g_bmod_objects[index]->setMass(1);
+	int len;
+	char * func = MF_GetAmxString(amx, params[2], 0, &len);
+	if(!func || !func[0])
+		return false;
 
-	return true;
+	return rbCall(g_bmod_objects[index]->getRigidBody(), func, amx, params + 3);
 }
 
 /*
-bool bmod_obj_getvar(int obj, char * var, ... );
+bool bmod_obj_call(int obj, char * func, ... );
 */
-static cell AMX_NATIVE_CALL bmod_obj_getvar(AMX *amx, cell *params) {
+static cell AMX_NATIVE_CALL bmod_obj_set_mass(AMX *amx, cell *params) {
 	int index = params[1];
 	if(index < 0 || index >= g_bmod_objects.size())
 		return false;
 
-	//TODO
-
+	g_bmod_objects[index]->setMass(amx_ctof(params[2]));
 	return true;
 }
 
@@ -372,8 +373,8 @@ AMX_NATIVE_INFO amxxfunctions[] = {
 	{"bmod_obj_get_ents", bmod_obj_get_ents},
 	{"bmod_obj_by_ent", bmod_obj_by_ent},
 
-	{"bmod_obj_setvar", bmod_obj_setvar},
-	{"bmod_obj_getvar", bmod_obj_getvar},
+	{"bmod_obj_call", bmod_obj_call},
+	{"bmod_obj_set_mass", bmod_obj_set_mass},
 
 	{"bmod_traceline", bmod_traceline},
 

@@ -17,7 +17,6 @@ private:
 	btCollisionShape* shape;
 	std::list<int> entities;
 public:
-	//bmodObject();
 	bmodObject(const char * model);
 	std::list<int> * getEntities();
 	int assignEntity(int entity);

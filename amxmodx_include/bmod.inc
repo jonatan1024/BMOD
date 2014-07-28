@@ -5,8 +5,8 @@ native bmod_obj_assign_ent(obj, ent)
 native bmod_obj_remove_ent(obj, ent)
 native bmod_obj_get_ents(obj)
 native bmod_obj_by_ent(ent)
-native bmod_obj_setvar(obj)
-native bmod_obj_getvar(obj)
+native bmod_obj_call(obj, func[], ...)
+native bmod_obj_set_mass(obj, Float:mass)
 native bmod_traceline()
 
 
