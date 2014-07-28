@@ -33,10 +33,6 @@ bmodObject::bmodObject(const char * model) {
 	btRigidBody::btRigidBodyConstructionInfo objectRigidBodyCI(0, objectMotionState, shape, btVector3(0, 0, 0));
 	rigidBody = new btRigidBody(objectRigidBodyCI);
 	g_bt_dynamicsWorld->addRigidBody(rigidBody);
-
-	rigidBody->setUserIndex(1337);
-	int (btRigidBody::*asdf)() const = &btRigidBody::getUserIndex;
-	MF_Log("ui: %d %d", rigidBody->getUserIndex(), (rigidBody->*asdf)());
 }
 
 

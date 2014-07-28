@@ -76,6 +76,7 @@ copy /Y $(ProjectDir)\amxmodx_include\bmod.inc c:\SteamGames\Half-Life\cstrike\a
     <ClInclude Include="object.h" />
     <ClInclude Include="sdk\amxxmodule.h" />
     <ClInclude Include="sdk\moduleconfig.h" />
+    <ClInclude Include="studio.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="amxmodx_include\bmod.inc" />
