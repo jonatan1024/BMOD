@@ -4,12 +4,18 @@
 #include "bspfile.h"
 #include "studio.h"
 
+//#define BULLET_TRIANGLE_COLLISION 1
+#include <BulletCollision\Gimpact\btGImpactShape.h>
+#include <BulletCollision\Gimpact\btCompoundFromGimpact.h>
+
 typedef std::map<std::string, btCollisionShape*> modelmap;
 
 modelmap models;
 
 extern char g_game_dir[];
 extern char g_bspname[];
+
+extern btDiscreteDynamicsWorld* g_bt_dynamicsWorld;
 
 bool getBMODShape(const char * model, btCollisionShape** shape) {
 	printf("lurki ng\n%s\n", model);
@@ -118,7 +124,20 @@ bool getBSPShape(FILE * bspfile, int modelnum, btCollisionShape ** shape) {
 
 	//pass trimesh to bullet
 	btTriangleIndexVertexArray * map_trimesh = new btTriangleIndexVertexArray(tri_indices_c / 3, tri_indices, 3 * sizeof(int), tri_vertices_c, tri_vertices, 3 * sizeof(float));
-	*shape = new btBvhTriangleMeshShape(map_trimesh, true);
+
+	if(modelnum != 0) {
+		btGImpactMeshShape * trimesh2 = new btGImpactMeshShape(map_trimesh);
+		trimesh2->setLocalScaling(btVector3(1.f, 1.f, 1.f));
+#ifdef BULLET_TRIANGLE_COLLISION 
+		trimesh2->setMargin(0.07f); ///?????
+#else
+		trimesh2->setMargin(0.0f);
+#endif
+		trimesh2->updateBound();
+		*shape = trimesh2;
+	}
+	else
+		*shape = new btBvhTriangleMeshShape(map_trimesh, true);
 
 
 	//freedom!
@@ -136,6 +155,7 @@ bool getBSPShape(FILE * bspfile, int modelnum, btCollisionShape ** shape) {
 }
 
 FILE * fmdlopen(const char * model, char ** params) {
+	printf("model: '%s'\n\n\n", model);
 	char modelf[260];
 	strcpy(modelf, model);
 
@@ -160,9 +180,10 @@ FILE * fmdlopen(const char * model, char ** params) {
 		file = fopen(path, "rb");
 	}
 	if(!file) {
-		sprintf(path, "valve/%s", g_game_dir, modelf);
+		sprintf(path, "valve/%s", modelf);
 		file = fopen(path, "rb");
 	}
+	printf("path: '%s' handle: %08X\n", path, file);
 	return file;
 }
 
@@ -181,6 +202,7 @@ bool getMAPShape(const char * model, btCollisionShape** shape) {
 }
 
 bool getMDLShape(FILE * mdlfile, int partnum, int modelnum, btCollisionShape** shape) {
+	printf("getmdlshape\n");
 	//read header
 	studiohdr_t header;
 	fseek(mdlfile, 0, SEEK_SET);
@@ -215,13 +237,15 @@ bool getMDLShape(FILE * mdlfile, int partnum, int modelnum, btCollisionShape** s
 			if(!numverticies)
 				break;
 
-			//i don't need your hints! go away!
-			if(numverticies < 0)
+			bool fan = false;
+			if(numverticies < 0) {
 				numverticies = -numverticies;
+				fan = true;
+			}
 
 			short v1, v2, v3;
 			fread(&v1, sizeof(short), 1, mdlfile);
-			fseek(mdlfile, 3*sizeof(short), SEEK_CUR);
+			fseek(mdlfile, 3 * sizeof(short), SEEK_CUR);
 			fread(&v2, sizeof(short), 1, mdlfile);
 			fseek(mdlfile, 3 * sizeof(short), SEEK_CUR);
 			for(int i = 2; i < numverticies; i++) {
@@ -231,6 +255,9 @@ bool getMDLShape(FILE * mdlfile, int partnum, int modelnum, btCollisionShape** s
 				indices[indices_c++] = v1;
 				indices[indices_c++] = v2;
 				indices[indices_c++] = v3;
+				if(!fan) {
+					v1 = v2;
+				}
 				v2 = v3;
 			}
 		}
@@ -241,18 +268,36 @@ bool getMDLShape(FILE * mdlfile, int partnum, int modelnum, btCollisionShape** s
 	float * vertices = new float[vertices_c * 3];
 	fseek(mdlfile, model.vertindex, SEEK_SET);
 	fread(vertices, sizeof(vec3_t), vertices_c, mdlfile);
+	//swap those fuckers around
+	for(int i = 0; i < vertices_c; i++) {
+		//int c = vertices[i * 3 + 1];
+		//vertices[i * 3 + 1] = vertices[i * 3 + 2];
+		//vertices[i * 3 + 2] = -c;
+		float c = vertices[i * 3];
+		vertices[i * 3] = vertices[i * 3 + 1];
+		vertices[i * 3 + 1] = c;
+	}
 
 	/*for(int i = 0; i < indices_c; i += 3) {
 		printf("[%d %d %d] ", indices[i], indices[i + 1], indices[i + 2]);
-	}
-	printf("\n");
-	for(int i = 0; i < vertices_c; i++) {
+		}
+		printf("\n");
+		for(int i = 0; i < vertices_c; i++) {
 		printf("(%f %f %f) ", vertices[i*3], vertices[i*3 + 1], vertices[i*3 + 2]);
+		}
+		printf("\n");*/
+	FILE * tst = fopen("tst.obj", "w");
+	for(int i = 0; i < vertices_c; i++) {
+		fprintf(tst, "v %f %f %f\n", vertices[i * 3], vertices[i * 3 + 1], vertices[i * 3 + 2]);
 	}
-	printf("\n");*/
+	for(int i = 0; i < indices_c; i += 3) {
+		fprintf(tst, "f %d %d %d\n", indices[i] + 1, indices[i + 1] + 1, indices[i + 2] + 1);
+	}
+	fclose(tst);
 
-	btTriangleIndexVertexArray * map_trimesh = new btTriangleIndexVertexArray(indices_c / 3, indices, 3 * sizeof(int), vertices_c, vertices, 3 * sizeof(float));
-	*shape = new btBvhTriangleMeshShape(map_trimesh, true);
+	btTriangleIndexVertexArray * mdl_trimesh = new btTriangleIndexVertexArray(indices_c / 3, indices, 3 * sizeof(int), vertices_c, vertices, 3 * sizeof(float));
+	*shape = btCreateCompoundFromGimpactShape(new btGImpactMeshShape(mdl_trimesh), 0.0f);
+	//*shape = new btBvhTriangleMeshShape(mdl_trimesh, true);
 	//*shape = new btConvexHullShape(vertices, vertices_c, 3 * sizeof(float));
 
 	delete meshes;

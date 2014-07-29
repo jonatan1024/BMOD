@@ -8,14 +8,17 @@
 #include "object.h"
 #include "model.h"
 
+//#define BULLET_TRIANGLE_COLLISION 1
+#include <BulletCollision/Gimpact/btGImpactCollisionAlgorithm.h>
+
 #define BMOD_GRAVITY -525 //-10m/s^2 -> -1000cm/s^2 -> convert to game units (1/1.905f)
 
 //expecting min 10 FPS
 int g_bt_max_ssteps = 6;
 float g_bt_ftstep = 1.0 / 60;
 
-char g_game_dir[16];
-char g_bspname[64];
+char g_game_dir[64];
+char g_bspname[260];
 
 std::vector<bmodObject*> g_bmod_objects;
 
@@ -41,6 +44,9 @@ void OnAmxxAttach() {
 	g_bt_solver = new btSequentialImpulseConstraintSolver;
 	g_bt_dynamicsWorld = new btDiscreteDynamicsWorld(g_bt_dispatcher, g_bt_broadphase, g_bt_solver, g_bt_collisionConfiguration);
 	g_bt_dynamicsWorld->setGravity(btVector3(0, 0, BMOD_GRAVITY));
+
+	btGImpactCollisionAlgorithm::registerAlgorithm(g_bt_dispatcher);
+
 	RETURN_META(MRES_IGNORED);
 }
 
@@ -49,15 +55,15 @@ void OnAmxxAttach() {
 void ServerActivate_Post(edict_t *pEdictList, int edictCount, int clientMax) {
 	MF_Log("activated");
 
-	strcpy(g_bspname, STRING(gpGlobals->mapname));
-	strcat(g_bspname, ".bsp");
+	sprintf(g_bspname, "maps/%s.bsp", STRING(gpGlobals->mapname));
 
 	//TODO load map and handle entities
-	btCollisionShape * g_bmod_mapShape = new btStaticPlaneShape(btVector3(0, 0, 1), 0);
+	/*btCollisionShape * g_bmod_mapShape = new btStaticPlaneShape(btVector3(0, 0, 1), 0);
 	btDefaultMotionState* motionState = new btDefaultMotionState();
 	btRigidBody::btRigidBodyConstructionInfo rigidBodyCI(0, motionState, g_bmod_mapShape, btVector3(0, 0, 0));
 	btRigidBody * g_bmod_mapBody = new btRigidBody(rigidBodyCI);
 	g_bt_dynamicsWorld->addRigidBody(g_bmod_mapBody);
+	*/
 
 	//get bsp path
 	//char gamedir[16];

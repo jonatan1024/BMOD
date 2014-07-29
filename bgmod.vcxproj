@@ -26,7 +26,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>C:\_projekty\_common\hlsdk-2.3-p4\multiplayer\dlls;C:\_projekty\_common\bullet-2.82-r2704\src;C:\_projekty\_common\hlsdk-2.3-p4\multiplayer\common;C:\_projekty\_common\hlsdk-2.3-p4\multiplayer\engine;C:\_projekty\_common\metamod-p-code-ab650f41a7549282da60312a1d56fee2cc297161\metamod;C:\_projekty\_common\amxmodx-central-2ae84f7c0a97\amxmodx;$(IncludePath)</IncludePath>
+    <IncludePath>C:\_projekty\_common\bullet-2.82-r2704\Extras\ConvexDecomposition;C:\_projekty\_common\hlsdk-2.3-p4\multiplayer\dlls;C:\_projekty\_common\bullet-2.82-r2704\src;C:\_projekty\_common\hlsdk-2.3-p4\multiplayer\common;C:\_projekty\_common\hlsdk-2.3-p4\multiplayer\engine;C:\_projekty\_common\metamod-p-code-ab650f41a7549282da60312a1d56fee2cc297161\metamod;C:\_projekty\_common\amxmodx-central-2ae84f7c0a97\amxmodx;$(IncludePath)</IncludePath>
     <LibraryPath>C:\_projekty\_common\bullet-2.82-r2704\lib;$(LibraryPath)</LibraryPath>
     <TargetName>bmod_amxx</TargetName>
   </PropertyGroup>
@@ -44,7 +44,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>BulletCollision_vs2010.lib;BulletDynamics_vs2010.lib;LinearMath_vs2010.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>BulletCollision_vs2010.lib;BulletDynamics_vs2010.lib;LinearMath_vs2010.lib;ConvexDecomposition_vs2010.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>copy /Y $(TargetPath) c:\SteamGames\Half-Life\cstrike\addons\amxmodx\modules\
