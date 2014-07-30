@@ -3,7 +3,7 @@
 #include <btBulletDynamicsCommon.h>
 #include <stdio.h>
 
-#include <vector>
+#include <map>
 
 #include "object.h"
 #include "model.h"
@@ -20,7 +20,7 @@ float g_bt_ftstep = 1.0 / 60;
 char g_game_dir[64];
 char g_bspname[260];
 
-std::vector<bmodObject*> g_bmod_objects;
+std::map<int, bmodObject*> g_bmod_objects;
 
 extern AMX_NATIVE_INFO amxxfunctions[];
 
@@ -84,13 +84,6 @@ void ServerActivate_Post(edict_t *pEdictList, int edictCount, int clientMax) {
 }
 
 void StartFrame() {
-	//kinematic objects should be updated automatically
-	//update immovable objects
-	/*for(std::vector<bmodObject*>::iterator it = g_bmod_objects.begin(); it != g_bmod_objects.end(); ++it) {
-		//MF_Log("%d: %d %f", it - g_bmod_objects.begin(), (*it)->isImmovable(), INDEXENT((*it)->getEntities()->back())->v.origin.z);
-		if((*it)->getRigidBody()->isStaticObject())
-			(*it)->update();
-	}*/
 
 	static float oldtime = 0;
 	float newtime = g_engfuncs.pfnTime();
@@ -104,11 +97,10 @@ void ServerDeactivate_Post() {
 	MF_Log("deactivated");
 
 	//unload objects
-	for(std::vector<bmodObject*>::iterator it = g_bmod_objects.begin(); it != g_bmod_objects.end(); ++it) {
-		delete *it;
+	for(std::map<int, bmodObject*>::iterator it = g_bmod_objects.begin(); it != g_bmod_objects.end(); ++it) {
+		delete it->second;
 	}
 	g_bmod_objects.clear();
-	g_bmod_objects.resize(0);
 
 	//clear models
 	clearModels();
@@ -127,9 +119,7 @@ void ServerDeactivate_Post() {
 
 void OnAmxxDetach() {
 	MF_Log("detached");
-
-	g_bmod_objects.shrink_to_fit();
-
+	
 	//unload bullet stuff
 	delete g_bt_dynamicsWorld;
 	delete g_bt_solver;

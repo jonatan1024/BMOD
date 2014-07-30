@@ -1,15 +1,25 @@
 #include "sdk/amxxmodule.h"
 
 #include "object.h"
-#include <vector>
+#include <map>
 #include "call.h"
 #include "model.h"
 
-extern std::vector<bmodObject*> g_bmod_objects;
+typedef std::map<int, bmodObject*>::iterator objs_it;
+extern std::map<int, bmodObject*> g_bmod_objects;
 extern btDiscreteDynamicsWorld* g_bt_dynamicsWorld;
 
 extern int g_bt_max_ssteps;
 extern float g_bt_ftstep;
+
+int _insert_object(bmodObject* object) {
+	int index = 0;
+	if(g_bmod_objects.size()) {
+		index = g_bmod_objects.rbegin()->first + 1;
+	}
+	g_bmod_objects[index] = object;
+	return index;
+}
 
 /*
 int bmod_obj_new(char * model);
@@ -20,19 +30,18 @@ static cell AMX_NATIVE_CALL bmod_obj_new(AMX *amx, cell *params) {
 
 	float mass = amx_ctof(params[2]);
 
-	g_bmod_objects.push_back(new bmodObject(model, mass));
-	return g_bmod_objects.size() - 1;
+	return _insert_object(new bmodObject(model, mass));
 }
 
 /*
 bool bmod_obj_delete(int obj);
 */
 static cell AMX_NATIVE_CALL bmod_obj_delete(AMX *amx, cell *params) {
-	int index = params[1];
-	if(index < 0 || index >= g_bmod_objects.size())
+	objs_it it = g_bmod_objects.find(params[1]);
+	if(it == g_bmod_objects.end())
 		return false;
-	delete g_bmod_objects[index];
-	g_bmod_objects.erase(g_bmod_objects.begin() + index);
+	delete it->second;
+	g_bmod_objects.erase(it);
 	return true;
 }
 
@@ -49,65 +58,67 @@ static cell AMX_NATIVE_CALL bmod_obj_from_ent(AMX *amx, cell *params) {
 		return -1;
 
 	bmodObject * obj = new bmodObject(model, 0.0f);
-	g_bmod_objects.push_back(obj);
+	int index = _insert_object(obj);
 	obj->assignEntity(params[1]);
 	obj->update();
 
-	return g_bmod_objects.size() - 1;
+	return index;
 }
 
 /*
 int bmod_obj_assign_ent(int obj, int ent);
 */
 static cell AMX_NATIVE_CALL bmod_obj_assign_ent(AMX *amx, cell *params) {
-	int objindex = params[1];
-	if(objindex < 0 || objindex >= g_bmod_objects.size())
+	objs_it it = g_bmod_objects.find(params[1]);
+	if(it == g_bmod_objects.end())
 		return -1;
+
 	int entindex = params[2];
 	if(!INDEXENT(entindex))
 		return -1;
-	return g_bmod_objects[objindex]->assignEntity(entindex);
+	return it->second->assignEntity(entindex);
 }
 
 /*
 int bmod_obj_remove_ent(int obj, int ent);
 */
 static cell AMX_NATIVE_CALL bmod_obj_remove_ent(AMX *amx, cell *params) {
-	int objindex = params[1];
-	if(objindex < 0 || objindex >= g_bmod_objects.size())
+	objs_it it = g_bmod_objects.find(params[1]);
+	if(it == g_bmod_objects.end())
 		return -1;
+
 	int entindex = params[2];
 	if(!INDEXENT(entindex))
 		return -1;
-	return g_bmod_objects[objindex]->removeEntity(entindex);
+	return it->second->removeEntity(entindex);
 }
 
 /*
 int bmod_obj_get_ents(int obj);
 */
 static cell AMX_NATIVE_CALL bmod_obj_get_ents(AMX *amx, cell *params) {
-	int objindex = params[1];
-	if(objindex < 0 || objindex >= g_bmod_objects.size())
-		return -1;
+	objs_it it = g_bmod_objects.find(params[1]);
+	if(it == g_bmod_objects.end())
+		return false;
 
 	//TDOODOODODO TODO
 
-	return 0;
+	return true;
 }
 
 /*
 int bmod_obj_by_ent(int ent);
 */
 static cell AMX_NATIVE_CALL bmod_obj_by_ent(AMX *amx, cell *params) {
-	int entindex = params[2];
+	int entindex = params[1];
 	if(!INDEXENT(entindex))
 		return -1;
 
-	for(std::vector<bmodObject*>::iterator it = g_bmod_objects.begin(); it != g_bmod_objects.end(); ++it) {
-		std::list<int> * ents = (*it)->getEntities();
+	for(objs_it it = g_bmod_objects.begin(); it != g_bmod_objects.end(); ++it) {
+		std::list<int> * ents = it->second->getEntities();
 		for(std::list<int>::iterator it2 = ents->begin(); it2 != ents->end(); ++it) {
 			if(entindex == *it2) {
-				return it - g_bmod_objects.begin();
+				return it->first;
 			}
 		}
 	}
@@ -119,8 +130,8 @@ static cell AMX_NATIVE_CALL bmod_obj_by_ent(AMX *amx, cell *params) {
 bool bmod_obj_call(int obj, char * func, ... );
 */
 static cell AMX_NATIVE_CALL bmod_obj_call(AMX *amx, cell *params) {
-	int index = params[1];
-	if(index < 0 || index >= g_bmod_objects.size())
+	objs_it it = g_bmod_objects.find(params[1]);
+	if(it == g_bmod_objects.end())
 		return false;
 
 	int len;
@@ -128,18 +139,18 @@ static cell AMX_NATIVE_CALL bmod_obj_call(AMX *amx, cell *params) {
 	if(!func || !func[0])
 		return false;
 
-	return rbCall(g_bmod_objects[index]->getRigidBody(), func, amx, params + 3);
+	return rbCall(it->second->getRigidBody(), func, amx, params + 3);
 }
 
 /*
 bool bmod_obj_set_mass(int obj, float mass);
 */
 static cell AMX_NATIVE_CALL bmod_obj_set_mass(AMX *amx, cell *params) {
-	int index = params[1];
-	if(index < 0 || index >= g_bmod_objects.size())
+	objs_it it = g_bmod_objects.find(params[1]);
+	if(it == g_bmod_objects.end())
 		return false;
 
-	g_bmod_objects[index]->setMass(amx_ctof(params[2]));
+	it->second->setMass(amx_ctof(params[2]));
 	return true;
 }
 
@@ -147,16 +158,16 @@ static cell AMX_NATIVE_CALL bmod_obj_set_mass(AMX *amx, cell *params) {
 bool bmod_obj_set_kinematic(int obj, bool kinematic);
 */
 static cell AMX_NATIVE_CALL bmod_obj_set_kinematic(AMX *amx, cell *params) {
-	int index = params[1];
-	if(index < 0 || index >= g_bmod_objects.size())
+	objs_it it = g_bmod_objects.find(params[1]);
+	if(it == g_bmod_objects.end())
 		return false;
 
 	bool kinematic = params[2];
 
-	btRigidBody * rigidBody = g_bmod_objects[index]->getRigidBody();
+	btRigidBody * rigidBody = it->second->getRigidBody();
 
 	if(kinematic) {
-		g_bmod_objects[index]->setMass(0);
+		it->second->setMass(0);
 		rigidBody->setCollisionFlags(rigidBody->getCollisionFlags() | btCollisionObject::CF_KINEMATIC_OBJECT);
 		rigidBody->setActivationState(DISABLE_DEACTIVATION);
 	}
@@ -172,11 +183,11 @@ static cell AMX_NATIVE_CALL bmod_obj_set_kinematic(AMX *amx, cell *params) {
 bool bmod_obj_update_pos(int obj);
 */
 static cell AMX_NATIVE_CALL bmod_obj_update_pos(AMX *amx, cell *params) {
-	int index = params[1];
-	if(index < 0 || index >= g_bmod_objects.size())
+	objs_it it = g_bmod_objects.find(params[1]);
+	if(it == g_bmod_objects.end())
 		return false;
 
-	g_bmod_objects[index]->update();
+	it->second->update();
 	return true;
 }
 

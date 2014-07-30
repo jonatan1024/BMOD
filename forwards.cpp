@@ -1,10 +1,10 @@
 #include "sdk/amxxmodule.h"
 #include <btBulletDynamicsCommon.h>
 
-#include <vector>
+#include <map>
 #include "object.h"
 
-extern std::vector<bmodObject*> g_bmod_objects;
+extern std::map<int, bmodObject*> g_bmod_objects;
 
 int forward_contact = 0;
 
@@ -14,11 +14,11 @@ static bool bmodContactProcessedCallback(btManifoldPoint& point, const btCollisi
 	//TODO BETTER!!!
 	cell obj1 = -1;
 	cell obj2 = -1;
-	for(std::vector<bmodObject*>::iterator it = g_bmod_objects.begin(); it != g_bmod_objects.end(); ++it) {
-		if((*it)->getRigidBody() == body1)
-			obj1 = it - g_bmod_objects.begin();
-		if((*it)->getRigidBody() == body2)
-			obj2 = it - g_bmod_objects.begin();
+	for(std::map<int, bmodObject*>::iterator it = g_bmod_objects.begin(); it != g_bmod_objects.end(); ++it) {
+		if(it->second->getRigidBody() == body1)
+			obj1 = it->first;
+		if(it->second->getRigidBody() == body2)
+			obj2 = it->first;
 		if(obj1 > -1 && obj2 > -1)
 			break;
 	}

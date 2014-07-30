@@ -18,6 +18,8 @@ bmodObject::bmodObject(const char * model, float mass) {
 	btRigidBody::btRigidBodyConstructionInfo objectRigidBodyCI(mass, objectMotionState, shape, inertia);
 	rigidBody = new btRigidBody(objectRigidBodyCI);
 
+	//rigidBody->setUserPointer(this);
+
 	g_bt_dynamicsWorld->addRigidBody(rigidBody);
 }
 
