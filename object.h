@@ -17,12 +17,11 @@ private:
 	btCollisionShape* shape;
 	std::list<int> entities;
 public:
-	bmodObject(const char * model);
+	bmodObject(const char * model, float mass);
 	std::list<int> * getEntities();
 	int assignEntity(int entity);
 	int removeEntity(int entity);
 	void setMass(float mass);
-	bool isImmovable();
 	btRigidBody* getRigidBody();
 	void update();
 	~bmodObject();

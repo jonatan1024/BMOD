@@ -84,12 +84,13 @@ void ServerActivate_Post(edict_t *pEdictList, int edictCount, int clientMax) {
 }
 
 void StartFrame() {
+	//kinematic objects should be updated automatically
 	//update immovable objects
-	for(std::vector<bmodObject*>::iterator it = g_bmod_objects.begin(); it != g_bmod_objects.end(); ++it) {
+	/*for(std::vector<bmodObject*>::iterator it = g_bmod_objects.begin(); it != g_bmod_objects.end(); ++it) {
 		//MF_Log("%d: %d %f", it - g_bmod_objects.begin(), (*it)->isImmovable(), INDEXENT((*it)->getEntities()->back())->v.origin.z);
-		if((*it)->isImmovable())
+		if((*it)->getRigidBody()->isStaticObject())
 			(*it)->update();
-	}
+	}*/
 
 	static float oldtime = 0;
 	float newtime = g_engfuncs.pfnTime();

@@ -17,6 +17,19 @@ extern char g_bspname[];
 
 extern btDiscreteDynamicsWorld* g_bt_dynamicsWorld;
 
+trimesh_shape_type g_scfg_tst;
+btVector3 g_scfg_origin(0, 0, 0);
+btVector3 g_scfg_scale(1, 1, 1);
+
+bool setModelConfig(trimesh_shape_type tst, float origin[3], float scale[3]) {
+	g_scfg_tst = tst;
+	for(int i = 0; i < 3; i++) {
+		g_scfg_origin[i] = origin[i];
+		g_scfg_scale[i] = scale[i];
+	}
+	return true;
+}
+
 bool getBMODShape(const char * model, btCollisionShape** shape) {
 	printf("lurki ng\n%s\n", model);
 	float x, y, z;
@@ -38,6 +51,10 @@ bool getBMODShape(const char * model, btCollisionShape** shape) {
 	else {
 		return false;
 	}
+
+	//scale
+	(*shape)->setLocalScaling(g_scfg_scale);
+	
 	return true;
 }
 
@@ -111,9 +128,10 @@ bool getBSPShape(FILE * bspfile, int modelnum, btCollisionShape ** shape) {
 	int tri_vertices_c = max - min;
 	float * tri_vertices = new float[tri_vertices_c * 3];
 	for(int i = 0; i < tri_vertices_c; i++) {
-		tri_vertices[i * 3 + 0] = vertices[min + i].point[0];
-		tri_vertices[i * 3 + 1] = vertices[min + i].point[1];
-		tri_vertices[i * 3 + 2] = vertices[min + i].point[2];
+		//copy & scale
+		tri_vertices[i * 3 + 0] = vertices[min + i].point[0] * g_scfg_scale[0];
+		tri_vertices[i * 3 + 1] = vertices[min + i].point[1] * g_scfg_scale[1];
+		tri_vertices[i * 3 + 2] = vertices[min + i].point[2] * g_scfg_scale[2];
 	}
 
 	//alloc space for indices and copy them
@@ -124,21 +142,19 @@ bool getBSPShape(FILE * bspfile, int modelnum, btCollisionShape ** shape) {
 
 	//pass trimesh to bullet
 	btTriangleIndexVertexArray * map_trimesh = new btTriangleIndexVertexArray(tri_indices_c / 3, tri_indices, 3 * sizeof(int), tri_vertices_c, tri_vertices, 3 * sizeof(float));
-
-	if(modelnum != 0) {
-		btGImpactMeshShape * trimesh2 = new btGImpactMeshShape(map_trimesh);
-		trimesh2->setLocalScaling(btVector3(1.f, 1.f, 1.f));
-#ifdef BULLET_TRIANGLE_COLLISION 
-		trimesh2->setMargin(0.07f); ///?????
-#else
-		trimesh2->setMargin(0.0f);
-#endif
-		trimesh2->updateBound();
-		*shape = trimesh2;
-	}
-	else
+	switch(g_scfg_tst) {
+	case TST_concave_gimpact:
+		*shape = btCreateCompoundFromGimpactShape(new btGImpactMeshShape(map_trimesh), 0.0f);
+		break;
+	case TST_convex:
+		delete tri_indices;
+		delete map_trimesh;
+		*shape = new btConvexHullShape(tri_vertices, tri_vertices_c, 3 * sizeof(float));
+		break;
+	case TST_concave_static:
+	default:
 		*shape = new btBvhTriangleMeshShape(map_trimesh, true);
-
+	}
 
 	//freedom!
 	delete faces;
@@ -270,35 +286,38 @@ bool getMDLShape(FILE * mdlfile, int partnum, int modelnum, btCollisionShape** s
 	fread(vertices, sizeof(vec3_t), vertices_c, mdlfile);
 	//swap those fuckers around
 	for(int i = 0; i < vertices_c; i++) {
-		//int c = vertices[i * 3 + 1];
-		//vertices[i * 3 + 1] = vertices[i * 3 + 2];
-		//vertices[i * 3 + 2] = -c;
 		float c = vertices[i * 3];
 		vertices[i * 3] = vertices[i * 3 + 1];
 		vertices[i * 3 + 1] = c;
+		//and scale them!
+		vertices[i * 3 + 0] *= g_scfg_scale[0];
+		vertices[i * 3 + 1] *= g_scfg_scale[1];
+		vertices[i * 3 + 2] *= g_scfg_scale[2];
 	}
 
-	/*for(int i = 0; i < indices_c; i += 3) {
-		printf("[%d %d %d] ", indices[i], indices[i + 1], indices[i + 2]);
-		}
-		printf("\n");
-		for(int i = 0; i < vertices_c; i++) {
-		printf("(%f %f %f) ", vertices[i*3], vertices[i*3 + 1], vertices[i*3 + 2]);
-		}
-		printf("\n");*/
-	FILE * tst = fopen("tst.obj", "w");
+	/*FILE * tst = fopen("tst.obj", "w");
 	for(int i = 0; i < vertices_c; i++) {
-		fprintf(tst, "v %f %f %f\n", vertices[i * 3], vertices[i * 3 + 1], vertices[i * 3 + 2]);
+	fprintf(tst, "v %f %f %f\n", vertices[i * 3], vertices[i * 3 + 1], vertices[i * 3 + 2]);
 	}
 	for(int i = 0; i < indices_c; i += 3) {
-		fprintf(tst, "f %d %d %d\n", indices[i] + 1, indices[i + 1] + 1, indices[i + 2] + 1);
+	fprintf(tst, "f %d %d %d\n", indices[i] + 1, indices[i + 1] + 1, indices[i + 2] + 1);
 	}
-	fclose(tst);
+	fclose(tst);*/
 
 	btTriangleIndexVertexArray * mdl_trimesh = new btTriangleIndexVertexArray(indices_c / 3, indices, 3 * sizeof(int), vertices_c, vertices, 3 * sizeof(float));
-	*shape = btCreateCompoundFromGimpactShape(new btGImpactMeshShape(mdl_trimesh), 0.0f);
-	//*shape = new btBvhTriangleMeshShape(mdl_trimesh, true);
-	//*shape = new btConvexHullShape(vertices, vertices_c, 3 * sizeof(float));
+	switch(g_scfg_tst) {
+	case TST_concave_gimpact:
+		*shape = btCreateCompoundFromGimpactShape(new btGImpactMeshShape(mdl_trimesh), 0.0f);
+		break;
+	case TST_convex:
+		delete indices;
+		delete mdl_trimesh;
+		*shape = new btConvexHullShape(vertices, vertices_c, 3 * sizeof(float));
+		break;
+	case TST_concave_static:
+	default:
+		*shape = new btBvhTriangleMeshShape(mdl_trimesh, true);
+	}
 
 	delete meshes;
 
@@ -328,7 +347,11 @@ bool getFILEShape(FILE * file, btCollisionShape** shape, char * params) {
 }
 
 bool getModelShape(const char * model, btCollisionShape** shape) {
-	std::string mdlstr(model);
+	char mdlstr_buff[260];
+	sprintf(mdlstr_buff, "%s;%d;[%g,%g,%g];[%g,%g,%g]", model, g_scfg_tst,
+			g_scfg_origin[0], g_scfg_origin[1], g_scfg_origin[2],
+			g_scfg_scale[0], g_scfg_scale[1], g_scfg_scale[2]);
+	std::string mdlstr(mdlstr_buff);
 
 	//does model already exist?
 	modelmap::iterator el = models.find(mdlstr);
@@ -362,8 +385,19 @@ bool getModelShape(const char * model, btCollisionShape** shape) {
 		printf("\n\nnot found..\n\n\n");
 		return false;
 	}
-	printf("\n\nsaved!!!\n\n\n");
+	printf("\nmodel '%s' saved!\n\n", mdlstr.c_str());
+
+	//shift
+	btCompoundShape * comp = new btCompoundShape();
+	btTransform localTrans;
+	localTrans.setIdentity();
+	localTrans.setOrigin(g_scfg_origin);
+	comp->addChildShape(localTrans, *shape);
+	*shape = comp;
+
+	//save it for later! \o/
 	models[mdlstr] = *shape;
+
 	return true;
 }
 

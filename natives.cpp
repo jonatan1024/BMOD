@@ -3,6 +3,7 @@
 #include "object.h"
 #include <vector>
 #include "call.h"
+#include "model.h"
 
 extern std::vector<bmodObject*> g_bmod_objects;
 extern btDiscreteDynamicsWorld* g_bt_dynamicsWorld;
@@ -17,7 +18,9 @@ static cell AMX_NATIVE_CALL bmod_obj_new(AMX *amx, cell *params) {
 	int len;
 	char * model = MF_GetAmxString(amx, params[1], 0, &len);
 
-	g_bmod_objects.push_back(new bmodObject(model));
+	float mass = amx_ctof(params[2]);
+
+	g_bmod_objects.push_back(new bmodObject(model, mass));
 	return g_bmod_objects.size() - 1;
 }
 
@@ -41,14 +44,11 @@ static cell AMX_NATIVE_CALL bmod_obj_from_ent(AMX *amx, cell *params) {
 	if(!ent)
 		return -1;
 
-	/*if(ent->v.solid != SOLID_BSP)
-		return -1;*/
-
 	const char * model = STRING(ent->v.model);
 	if(!model || !model[0])
 		return -1;
 
-	bmodObject * obj = new bmodObject(model);
+	bmodObject * obj = new bmodObject(model, 0.0f);
 	g_bmod_objects.push_back(obj);
 	obj->assignEntity(params[1]);
 	obj->update();
@@ -90,7 +90,7 @@ static cell AMX_NATIVE_CALL bmod_obj_get_ents(AMX *amx, cell *params) {
 	if(objindex < 0 || objindex >= g_bmod_objects.size())
 		return -1;
 
-//TDOODOODODO TODO
+	//TDOODOODODO TODO
 
 	return 0;
 }
@@ -132,7 +132,7 @@ static cell AMX_NATIVE_CALL bmod_obj_call(AMX *amx, cell *params) {
 }
 
 /*
-bool bmod_obj_call(int obj, char * func, ... );
+bool bmod_obj_set_mass(int obj, float mass);
 */
 static cell AMX_NATIVE_CALL bmod_obj_set_mass(AMX *amx, cell *params) {
 	int index = params[1];
@@ -141,6 +141,62 @@ static cell AMX_NATIVE_CALL bmod_obj_set_mass(AMX *amx, cell *params) {
 
 	g_bmod_objects[index]->setMass(amx_ctof(params[2]));
 	return true;
+}
+
+/*
+bool bmod_obj_set_kinematic(int obj, bool kinematic);
+*/
+static cell AMX_NATIVE_CALL bmod_obj_set_kinematic(AMX *amx, cell *params) {
+	int index = params[1];
+	if(index < 0 || index >= g_bmod_objects.size())
+		return false;
+
+	bool kinematic = params[2];
+
+	btRigidBody * rigidBody = g_bmod_objects[index]->getRigidBody();
+
+	if(kinematic) {
+		g_bmod_objects[index]->setMass(0);
+		rigidBody->setCollisionFlags(rigidBody->getCollisionFlags() | btCollisionObject::CF_KINEMATIC_OBJECT);
+		rigidBody->setActivationState(DISABLE_DEACTIVATION);
+	}
+	else {
+		rigidBody->setCollisionFlags(rigidBody->getCollisionFlags() & ~btCollisionObject::CF_KINEMATIC_OBJECT);
+		rigidBody->setActivationState(WANTS_DEACTIVATION);
+	}
+
+	return true;
+}
+
+/*
+bool bmod_obj_update_pos(int obj);
+*/
+static cell AMX_NATIVE_CALL bmod_obj_update_pos(AMX *amx, cell *params) {
+	int index = params[1];
+	if(index < 0 || index >= g_bmod_objects.size())
+		return false;
+
+	g_bmod_objects[index]->update();
+	return true;
+}
+
+/*
+bool bmod_shape_cfg(trimesh_shape_type tst, float[3] origin, float[3] scale)
+*/
+static cell AMX_NATIVE_CALL bmod_shape_cfg(AMX *amx, cell *params) {
+	if(params[1] >= TST_NUM_TYPES || params[1] < 0)
+		params[1] = 0;
+	trimesh_shape_type tst = (trimesh_shape_type)params[1];
+	cell * c_origin = MF_GetAmxAddr(amx, params[2]);
+	float origin[3];
+	cell * c_scale = MF_GetAmxAddr(amx, params[3]);
+	float scale[3];
+	for(int i = 0; i < 3; i++) {
+		origin[i] = amx_ctof(c_origin[i]);
+		scale[i] = amx_ctof(c_scale[i]);
+	}
+
+	return setModelConfig(tst, origin, scale);
 }
 
 /*
@@ -375,6 +431,10 @@ AMX_NATIVE_INFO amxxfunctions[] = {
 
 	{"bmod_obj_call", bmod_obj_call},
 	{"bmod_obj_set_mass", bmod_obj_set_mass},
+	{"bmod_obj_set_kinematic", bmod_obj_set_kinematic},
+	{"bmod_obj_update_pos", bmod_obj_update_pos},
+
+	{"bmod_shape_cfg", bmod_shape_cfg},
 
 	{"bmod_traceline", bmod_traceline},
 
