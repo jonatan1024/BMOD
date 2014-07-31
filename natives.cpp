@@ -124,7 +124,7 @@ static cell AMX_NATIVE_CALL bmod_obj_by_ent(AMX *amx, cell *params) {
 
 	for(objs_it it = g_bmod_objects.begin(); it != g_bmod_objects.end(); ++it) {
 		std::list<int> * ents = it->second->getEntities();
-		for(std::list<int>::iterator it2 = ents->begin(); it2 != ents->end(); ++it) {
+		for(std::list<int>::iterator it2 = ents->begin(); it2 != ents->end(); ++it2) {
 			if(entindex == *it2) {
 				return it->first;
 			}
@@ -147,7 +147,7 @@ static cell AMX_NATIVE_CALL bmod_obj_call(AMX *amx, cell *params) {
 	if(!func || !func[0])
 		return false;
 
-	return rbCall(it->second->getRigidBody(), func, amx, params + 3);
+	return rbCall(it->second->getRigidBody(), func, amx, MF_GetAmxAddr(amx, params[3]));
 }
 
 /*
