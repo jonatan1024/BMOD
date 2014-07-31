@@ -99,18 +99,19 @@ int bmod_obj_get_ents(int obj, entities[], int len);
 static cell AMX_NATIVE_CALL bmod_obj_get_ents(AMX *amx, cell *params) {
 	objs_it it = g_bmod_objects.find(params[1]);
 	if(it == g_bmod_objects.end())
-		return false;
+		return -1;
 	std::list<int> * entlist = it->second->getEntities();
 
 	cell * entarray = MF_GetAmxAddr(amx, params[2]);
 
 	std::list<int>::iterator lit;
 	int i = 0;
-	for(lit = entlist->begin(), i = 0; lit != entlist->end() && i < params[3]; ++lit, i++) {
+	for(lit = entlist->begin(); lit != entlist->end() && i < params[3]; ++lit) {
 		entarray[i] = (*lit);
+		i++;
 	}
 
-	return true;
+	return i;
 }
 
 /*

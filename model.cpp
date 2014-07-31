@@ -31,7 +31,6 @@ bool setModelConfig(trimesh_shape_type tst, float origin[3], float scale[3]) {
 }
 
 bool getBMODShape(const char * model, btCollisionShape** shape) {
-	printf("lurki ng\n%s\n", model);
 	float x, y, z;
 	if(sscanf(model, "box/%f/%f/%f", &x, &y, &z) == 3) {
 		*shape = new btBoxShape(btVector3(x, y, z));
@@ -171,7 +170,7 @@ bool getBSPShape(FILE * bspfile, int modelnum, btCollisionShape ** shape) {
 }
 
 FILE * fmdlopen(const char * model, char ** params) {
-	printf("model: '%s'\n\n\n", model);
+	//printf("model: '%s'\n\n\n", model);
 	char modelf[260];
 	strcpy(modelf, model);
 
@@ -199,7 +198,6 @@ FILE * fmdlopen(const char * model, char ** params) {
 		sprintf(path, "valve/%s", modelf);
 		file = fopen(path, "rb");
 	}
-	printf("path: '%s' handle: %08X\n", path, file);
 	return file;
 }
 
@@ -218,7 +216,6 @@ bool getMAPShape(const char * model, btCollisionShape** shape) {
 }
 
 bool getMDLShape(FILE * mdlfile, int partnum, int modelnum, btCollisionShape** shape) {
-	printf("getmdlshape\n");
 	//read header
 	studiohdr_t header;
 	fseek(mdlfile, 0, SEEK_SET);
@@ -267,7 +264,6 @@ bool getMDLShape(FILE * mdlfile, int partnum, int modelnum, btCollisionShape** s
 			for(int i = 2; i < numverticies; i++) {
 				fread(&v3, sizeof(short), 1, mdlfile);
 				fseek(mdlfile, 3 * sizeof(short), SEEK_CUR);
-				//printf("%d {%d %d %d}\n", numverticies , v1, v2, v3);
 				indices[indices_c++] = v1;
 				indices[indices_c++] = v2;
 				indices[indices_c++] = v3;
@@ -295,6 +291,7 @@ bool getMDLShape(FILE * mdlfile, int partnum, int modelnum, btCollisionShape** s
 		vertices[i * 3 + 2] *= g_scfg_scale[2];
 	}
 
+	//debug obj file output :))
 	/*FILE * tst = fopen("tst.obj", "w");
 	for(int i = 0; i < vertices_c; i++) {
 	fprintf(tst, "v %f %f %f\n", vertices[i * 3], vertices[i * 3 + 1], vertices[i * 3 + 2]);
@@ -356,7 +353,6 @@ bool getModelShape(const char * model, btCollisionShape** shape) {
 	//does model already exist?
 	modelmap::iterator el = models.find(mdlstr);
 	if(el != models.end()) {
-		printf("\n\nFOUDN!!!\n\n\n");
 		*shape = el->second;
 		return true;
 	}
@@ -365,7 +361,6 @@ bool getModelShape(const char * model, btCollisionShape** shape) {
 	char * params;
 	//is it bullet primitive?
 	if(!strncmp(model, "BMOD/", 5)) {
-		printf("bmodacky kokot\n");
 		if(!getBMODShape(model + 5, shape))
 			return false;
 	}
@@ -382,10 +377,9 @@ bool getModelShape(const char * model, btCollisionShape** shape) {
 		}
 	}
 	else {
-		printf("\n\nnot found..\n\n\n");
 		return false;
 	}
-	printf("\nmodel '%s' saved!\n\n", mdlstr.c_str());
+	//printf("\nmodel '%s' saved!\n\n", mdlstr.c_str());
 
 	//shift
 	btCompoundShape * comp = new btCompoundShape();

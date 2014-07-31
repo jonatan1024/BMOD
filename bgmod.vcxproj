@@ -59,7 +59,6 @@ copy /Y $(ProjectDir)\amxmodx_include\bmod.inc c:\SteamGames\Half-Life\cstrike\a
     </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="bsp2tris.cpp" />
     <ClCompile Include="call.cpp" />
     <ClCompile Include="forwards.cpp" />
     <ClCompile Include="main.cpp" />
@@ -69,7 +68,6 @@ copy /Y $(ProjectDir)\amxmodx_include\bmod.inc c:\SteamGames\Half-Life\cstrike\a
     <ClCompile Include="sdk\amxxmodule.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="bsp2tris.h" />
     <ClInclude Include="bspfile.h" />
     <ClInclude Include="call.h" />
     <ClInclude Include="model.h" />

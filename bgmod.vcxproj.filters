@@ -30,9 +30,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="bsp2tris.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="forwards.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -56,9 +53,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="bsp2tris.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="bspfile.h">
       <Filter>Header Files</Filter>
     </ClInclude>

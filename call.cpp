@@ -1,7 +1,7 @@
 #include "call.h"
 
 typedef struct rb_func {
-	char name[64 - 8];
+	char name[64];
 	void (btRigidBody::*void_const_vector)(const btVector3&);
 	void (btRigidBody::*void_scalar)(btScalar);
 	void (btRigidBody::*void_const_vector_const_vector)(const btVector3&, const btVector3&);
@@ -13,9 +13,14 @@ typedef struct rb_func {
 	void (btRigidBody::*void_int)(int);
 	void (btRigidBody::*void_scalar_scalar)(btScalar, btScalar);
 	void (btRigidBody::*void_scalar_const_vector)(btScalar, const btVector3&);
+	void (btRigidBody::*void_bool_const)(bool) const;
+	const btTransform& (btRigidBody::*const_transform_ref_const)() const;
+	void (btRigidBody::*void_const_transform)(const btTransform&);
 } rb_func;
 
 rb_func rb_fcs[] = {
+	{"activate", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, &btRigidBody::activate},
+
 	{"applyCentralForce", &btRigidBody::applyCentralForce},
 	{"applyCentralImpulse", &btRigidBody::applyCentralImpulse},
 	{"applyDamping", 0, &btRigidBody::applyDamping},
@@ -40,6 +45,7 @@ rb_func rb_fcs[] = {
 	{"getRestitution", 0, 0, 0, 0, &btRigidBody::getRestitution},
 	{"getRollingFriction", 0, 0, 0, 0, &btRigidBody::getRollingFriction},
 	{"getUserIndex", 0, 0, 0, 0, 0, 0, &btRigidBody::getUserIndex},
+	{"getWorldTransform", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, &btRigidBody::getWorldTransform},
 
 	{"isActive", 0, 0, 0, 0, 0, 0, 0, &btRigidBody::isActive},
 	{"isKinematicObject", 0, 0, 0, 0, 0, 0, 0, &btRigidBody::isKinematicObject},
@@ -53,11 +59,11 @@ rb_func rb_fcs[] = {
 	{"setGravity", &btRigidBody::setGravity},
 	{"setLinearFactor", &btRigidBody::setLinearFactor},
 	{"setLinearVelocity", &btRigidBody::setLinearVelocity},
-//	{"setMassProps", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, &btRigidBody::setMassProps},
 	{"setRestitution", 0, &btRigidBody::setRestitution},
 	{"setRollingFriction", 0, &btRigidBody::setRollingFriction},
 	{"setSleepingThresholds", 0, 0, 0, 0, 0, 0, 0, 0, 0, &btRigidBody::setSleepingThresholds},
 	{"setUserIndex", 0, 0, 0, 0, 0, 0, 0, 0, &btRigidBody::setUserIndex},
+	{"setWorldTransform", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, &btRigidBody::setWorldTransform},
 };
 
 
@@ -74,7 +80,6 @@ bool rbCall(btRigidBody * rb, char * name, AMX * amx, cell * params) {
 		MF_Log("Function \"%s\" not found!", name);
 		return false;
 	}
-
 
 	if(func->void_const_vector) {
 		btVector3 btvec1;
@@ -144,8 +149,48 @@ bool rbCall(btRigidBody * rb, char * name, AMX * amx, cell * params) {
 		btvec1[2] = amx_ctof(vec1[2]);
 		(rb->*(func->void_scalar_const_vector))(btscl1, btvec1);
 	}
+	else if(func->void_bool_const) {
+		bool b = (bool)(params[0]);
+		(rb->*(func->void_bool_const))(b);
+	}
+	else if(func->const_transform_ref_const) {
+		btTransform tr = (rb->*(func->const_transform_ref_const))();
+		btVector3 btvec1 = tr.getOrigin();
+		cell * vec1 = MF_GetAmxAddr(amx, params[0]);
+		vec1[0] = amx_ftoc(btvec1[0]);
+		vec1[1] = amx_ftoc(btvec1[1]);
+		vec1[2] = amx_ftoc(btvec1[2]);
+		//TODO same gimbal lock fix
+		Vector btvec2;
+		tr.getBasis().getEulerZYX(btvec2[1], btvec2[0], btvec2[2]);
+		btvec2[0] = -btvec2[0];
+		btvec2 = btvec2 * 57.2957795f;
+
+		cell * vec2 = MF_GetAmxAddr(amx, params[0]);
+		vec2[0] = amx_ftoc(btvec2[0]);
+		vec2[1] = amx_ftoc(btvec2[1]);
+		vec2[2] = amx_ftoc(btvec2[2]);
+	}
+	else if(func->void_const_transform) {
+		
+		btVector3 btvec1;
+		cell * vec1 = MF_GetAmxAddr(amx, params[0]);
+		btvec1[0] = amx_ctof(vec1[0]);
+		btvec1[1] = amx_ctof(vec1[1]);
+		btvec1[2] = amx_ctof(vec1[2]);
+		btVector3 btvec2;
+		cell * vec2 = MF_GetAmxAddr(amx, params[0]);
+		btvec2[0] = amx_ctof(vec2[1]);
+		btvec2[1] = -amx_ctof(vec2[0]);
+		btvec2[2] = amx_ctof(vec2[2]);
+		btvec2 = btvec2 / 57.2957795f;
+
+		btTransform tr(btQuaternion(0, 0, 0, 1), btvec1);
+		tr.getBasis().setEulerZYX(btvec2[0], btvec2[1], btvec2[2]);
+		(rb->*(func->void_const_transform))(tr);
+	}
 	else {
-		MF_Log("wtf?????");
+		MF_Log("Function (%s) type not found", name);
 		return false;
 	}
 	return true;

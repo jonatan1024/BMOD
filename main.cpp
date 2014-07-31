@@ -32,7 +32,6 @@ btSequentialImpulseConstraintSolver* g_bt_solver;
 btDiscreteDynamicsWorld* g_bt_dynamicsWorld;
 
 void OnAmxxAttach() {
-	MF_Log("attached");
 	MF_AddNatives(amxxfunctions);
 
 	GET_GAME_DIR(g_game_dir);
@@ -47,19 +46,18 @@ void OnAmxxAttach() {
 
 	btGImpactCollisionAlgorithm::registerAlgorithm(g_bt_dispatcher);
 
+	MF_Log("attached");
 	RETURN_META(MRES_IGNORED);
 }
 
 void ServerActivate_Post(edict_t *pEdictList, int edictCount, int clientMax) {
-	MF_Log("activated");
-
 	sprintf(g_bspname, "maps/%s.bsp", STRING(gpGlobals->mapname));
 
+	MF_Log("activated");
 	RETURN_META(MRES_IGNORED);
 }
 
 void StartFrame() {
-
 	static float oldtime = 0;
 	float newtime = g_engfuncs.pfnTime();
 	//step it
@@ -69,8 +67,6 @@ void StartFrame() {
 }
 
 void ServerDeactivate_Post() {
-	MF_Log("deactivated");
-
 	//unload objects
 	for(std::map<int, bmodObject*>::iterator it = g_bmod_objects.begin(); it != g_bmod_objects.end(); ++it) {
 		delete it->second;
@@ -80,12 +76,11 @@ void ServerDeactivate_Post() {
 	//clear models
 	clearModels();
 
+	MF_Log("deactivated");
 	RETURN_META(MRES_IGNORED);
 }
 
 void OnAmxxDetach() {
-	MF_Log("detached");
-	
 	//unload bullet stuff
 	delete g_bt_dynamicsWorld;
 	delete g_bt_solver;
@@ -93,5 +88,6 @@ void OnAmxxDetach() {
 	delete g_bt_dispatcher;
 	delete g_bt_broadphase;
 
+	MF_Log("detached");
 	RETURN_META(MRES_IGNORED);
 }
