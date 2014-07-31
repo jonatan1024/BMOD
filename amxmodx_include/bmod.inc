@@ -18,7 +18,7 @@ enum trimesh_shape_type {
 };
 
 native bmod_shape_cfg(trimesh_shape_type, Float:origin[3] = {0.0, 0.0, 0.0}, Float:scale[3] = {1.0, 1.0, 1.0})
-native bmod_traceline()
+native bmod_traceline(Float:start[3], Float:end[3], Float:hitpoint[3], Float:hitnormal[3])
 
 
 /*

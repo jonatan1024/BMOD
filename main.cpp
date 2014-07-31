@@ -50,35 +50,10 @@ void OnAmxxAttach() {
 	RETURN_META(MRES_IGNORED);
 }
 
-//tris_s * g_bmod_tris;
-
 void ServerActivate_Post(edict_t *pEdictList, int edictCount, int clientMax) {
 	MF_Log("activated");
 
 	sprintf(g_bspname, "maps/%s.bsp", STRING(gpGlobals->mapname));
-
-	//TODO load map and handle entities
-	/*btCollisionShape * g_bmod_mapShape = new btStaticPlaneShape(btVector3(0, 0, 1), 0);
-	btDefaultMotionState* motionState = new btDefaultMotionState();
-	btRigidBody::btRigidBodyConstructionInfo rigidBodyCI(0, motionState, g_bmod_mapShape, btVector3(0, 0, 0));
-	btRigidBody * g_bmod_mapBody = new btRigidBody(rigidBodyCI);
-	g_bt_dynamicsWorld->addRigidBody(g_bmod_mapBody);
-	*/
-
-	//get bsp path
-	//char gamedir[16];
-	//GET_GAME_DIR(gamedir);
-	//char bspname[64];
-	//sprintf(bspname, "%s/maps/%s.bsp", gamedir, STRING(gpGlobals->mapname));
-	//load the map
-
-	//g_bmod_tris = bsp2tris(bspname, 0);
-	//btTriangleIndexVertexArray * map_trimesh = new btTriangleIndexVertexArray(g_bmod_tris->indices_c / 3, g_bmod_tris->indices, 3 * sizeof(int), g_bmod_tris->vertices_c, g_bmod_tris->vertices, 3 * sizeof(float));
-	//g_bmod_mapShape = new btBvhTriangleMeshShape(map_trimesh, true);
-	//btDefaultMotionState* motionState = new btDefaultMotionState();
-	//btRigidBody::btRigidBodyConstructionInfo rigidBodyCI(0, motionState, g_bmod_mapShape, btVector3(0, 0, 0));
-	//g_bmod_mapBody = new btRigidBody(rigidBodyCI);
-	//g_bt_dynamicsWorld->addRigidBody(g_bmod_mapBody);
 
 	RETURN_META(MRES_IGNORED);
 }
@@ -105,15 +80,6 @@ void ServerDeactivate_Post() {
 	//clear models
 	clearModels();
 
-
-	//unload the map
-	//g_bt_dynamicsWorld->removeRigidBody(g_bmod_mapBody);
-	//delete g_bmod_mapBody->getMotionState();
-	//delete g_bmod_mapBody;
-	//delete g_bmod_mapShape;
-	//free(g_bmod_tris->indices);
-	//free(g_bmod_tris->vertices);
-	//free(g_bmod_tris);
 	RETURN_META(MRES_IGNORED);
 }
 
