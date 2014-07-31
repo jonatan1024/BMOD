@@ -49,6 +49,8 @@
     <PostBuildEvent>
       <Command>copy /Y $(TargetPath) c:\SteamGames\Half-Life\cstrike\addons\amxmodx\modules\
 
+copy /Y $(TargetPath) $(ProjectDir)\amxmodx_modules\
+
 copy /Y $(ProjectDir)\amxmodx_include\bmod.inc c:\SteamGames\Half-Life\cstrike\addons\amxmodx\scripting\include\</Command>
     </PostBuildEvent>
     <PostBuildEvent>
@@ -78,6 +80,7 @@ copy /Y $(ProjectDir)\amxmodx_include\bmod.inc c:\SteamGames\Half-Life\cstrike\a
   </ItemGroup>
   <ItemGroup>
     <None Include="amxmodx_include\bmod.inc" />
+    <None Include="amxmodx_modules\bmod_amxx.dll" />
     <None Include="bmod_logo\bmod.svg" />
     <None Include="INSTALL" />
     <None Include="README" />

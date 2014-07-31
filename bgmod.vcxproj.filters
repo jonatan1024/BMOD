@@ -28,6 +28,9 @@
     <Filter Include="Other Files\bmod_logo">
       <UniqueIdentifier>{c632d82e-4527-4df9-a201-c77c6df244c4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Other Files\amxmodx_modules">
+      <UniqueIdentifier>{c04061c3-d7de-421c-a7bc-673f6f324e1c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="forwards.cpp">
@@ -87,6 +90,9 @@
     </None>
     <None Include="bmod_logo\bmod.svg">
       <Filter>Other Files\bmod_logo</Filter>
+    </None>
+    <None Include="amxmodx_modules\bmod_amxx.dll">
+      <Filter>Other Files\amxmodx_modules</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
