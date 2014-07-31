@@ -57,7 +57,7 @@ bool getBMODShape(const char * model, btCollisionShape** shape) {
 	return true;
 }
 
-inline int ___bsp_get_vertex(int edge, int * surfedges, dedge_t * edges) {
+inline int getBspVertex(int edge, int * surfedges, dedge_t * edges) {
 	int se = surfedges[edge];
 	return (se < 0) ? edges[-se].v[1] : edges[se].v[0];
 }
@@ -101,10 +101,10 @@ bool getBSPShape(FILE * bspfile, int modelnum, btCollisionShape ** shape) {
 
 	//int se, v, index = 0, temp_vertices = 0;
 	for(int i_f = model.firstface; i_f < model.firstface + model.numfaces; i_f++) {
-		int v1 = ___bsp_get_vertex(faces[i_f].firstedge, surfedges, edges);
-		int v2 = ___bsp_get_vertex(faces[i_f].firstedge + 1, surfedges, edges);
+		int v1 = getBspVertex(faces[i_f].firstedge, surfedges, edges);
+		int v2 = getBspVertex(faces[i_f].firstedge + 1, surfedges, edges);
 		for(int i_v = faces[i_f].firstedge + 2; i_v < faces[i_f].firstedge + faces[i_f].numedges; i_v++) {
-			int v3 = ___bsp_get_vertex(i_v, surfedges, edges);
+			int v3 = getBspVertex(i_v, surfedges, edges);
 			temp_indices[tri_indices_c++] = v1;
 			temp_indices[tri_indices_c++] = v2;
 			temp_indices[tri_indices_c++] = v3;

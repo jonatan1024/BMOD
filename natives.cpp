@@ -12,7 +12,7 @@ extern btDiscreteDynamicsWorld* g_bt_dynamicsWorld;
 extern int g_bt_max_ssteps;
 extern float g_bt_ftstep;
 
-int _insert_object(bmodObject* object) {
+int insertObject(bmodObject* object) {
 	int index = 0;
 	if(g_bmod_objects.size()) {
 		index = g_bmod_objects.rbegin()->first + 1;
@@ -30,7 +30,7 @@ static cell AMX_NATIVE_CALL bmod_obj_new(AMX *amx, cell *params) {
 
 	float mass = amx_ctof(params[2]);
 
-	return _insert_object(new bmodObject(model, mass));
+	return insertObject(new bmodObject(model, mass));
 }
 
 /*
@@ -58,7 +58,7 @@ static cell AMX_NATIVE_CALL bmod_obj_from_ent(AMX *amx, cell *params) {
 		return -1;
 
 	bmodObject * obj = new bmodObject(model, 0.0f);
-	int index = _insert_object(obj);
+	int index = insertObject(obj);
 	obj->assignEntity(params[1]);
 	obj->update();
 
