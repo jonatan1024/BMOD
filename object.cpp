@@ -74,6 +74,10 @@ void bmodObject::update() {
 	rigidBody->setAngularVelocity(btVector3(entity->v.avelocity.x / RAD2DEG, entity->v.avelocity.y / RAD2DEG, entity->v.avelocity.z / RAD2DEG));
 }
 
+void bmodObject::registerIndex(int index) {
+	rigidBody->setUserPointer((void*)index);
+}
+
 bmodObject::~bmodObject() {
 	//MF_Log("dinit");
 	entities.clear();

@@ -2,7 +2,7 @@
 #define __BMOD_OBJECT__
 
 #include <stdio.h>
-#include <extdll.h>//TODO: is it really nessesary?
+//#include <extdll.h>//TODO: is it really nessesary?
 #include <btBulletDynamicsCommon.h>
 
 #include <list>
@@ -24,6 +24,7 @@ public:
 	void setMass(float mass);
 	btRigidBody* getRigidBody();
 	void update();
+	void registerIndex(int index);
 	~bmodObject();
 };
 

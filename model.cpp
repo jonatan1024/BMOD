@@ -63,7 +63,6 @@ inline int getBspVertex(int edge, int * surfedges, dedge_t * edges) {
 }
 
 bool getBSPShape(FILE * bspfile, int modelnum, btCollisionShape ** shape) {
-	//modelnum = 4;
 	//read header
 	dheader_t header;
 	fseek(bspfile, 0, SEEK_SET);
@@ -170,19 +169,21 @@ bool getBSPShape(FILE * bspfile, int modelnum, btCollisionShape ** shape) {
 }
 
 FILE * fmdlopen(const char * model, char ** params) {
-	//printf("model: '%s'\n\n\n", model);
+	printf("model: '%s' (%08X) [%02X]\n", model, model, model[0]);
 	char modelf[260];
 	strcpy(modelf, model);
 
 	//handle parameters
 	*params = strrchr(modelf, '.');
-	*params += 4;
-	if(**params == '/') {
-		**params = 0;
-		*params++;
-	}
-	else {
-		*params = NULL;
+	if(*params) {
+		*params += 4;
+		if(**params == '/') {
+			**params = 0;
+			*params++;
+		}
+		else {
+			*params = NULL;
+		}
 	}
 
 	char path[260];

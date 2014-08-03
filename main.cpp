@@ -50,7 +50,7 @@ void OnAmxxAttach() {
 	RETURN_META(MRES_IGNORED);
 }
 
-void ServerActivate_Post(edict_t *pEdictList, int edictCount, int clientMax) {
+void ServerActivate(edict_t *pEdictList, int edictCount, int clientMax) {
 	sprintf(g_bspname, "maps/%s.bsp", STRING(gpGlobals->mapname));
 
 	MF_Log("activated");

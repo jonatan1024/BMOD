@@ -16,6 +16,7 @@ typedef struct rb_func {
 	void (btRigidBody::*void_bool_const)(bool) const;
 	const btTransform& (btRigidBody::*const_transform_ref_const)() const;
 	void (btRigidBody::*void_const_transform)(const btTransform&);
+	void (btRigidBody::*void_int_const)(int) const;
 } rb_func;
 
 rb_func rb_fcs[] = {
@@ -30,10 +31,14 @@ rb_func rb_fcs[] = {
 	{"applyTorque", &btRigidBody::applyTorque},
 	{"applyTorqueImpulse", &btRigidBody::applyTorqueImpulse},
 
+	{"forceActivationState", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, &btRigidBody::forceActivationState},
+
+	{"getActivationState", 0, 0, 0, 0, 0, 0, &btRigidBody::getActivationState},
 	{"getAngularDamping", 0, 0, 0, 0, &btRigidBody::getAngularDamping},
 	{"getAngularFactor", 0, 0, 0, 0, 0, &btRigidBody::getAngularFactor},
 	{"getAngularSleepingThreshold", 0, 0, 0, 0, &btRigidBody::getAngularSleepingThreshold},
 	{"getAngularVelocity", 0, 0, 0, 0, 0, &btRigidBody::getAngularVelocity},
+	{"getCollisionFlags", 0, 0, 0, 0, 0, 0, &btRigidBody::getCollisionFlags},
 	{"getFlags", 0, 0, 0, 0, 0, 0, &btRigidBody::getFlags},
 	{"getFriction", 0, 0, 0, 0, &btRigidBody::getFriction},
 	{"getGravity", 0, 0, 0, 0, 0, &btRigidBody::getGravity},
@@ -51,8 +56,10 @@ rb_func rb_fcs[] = {
 	{"isKinematicObject", 0, 0, 0, 0, 0, 0, 0, &btRigidBody::isKinematicObject},
 	{"isStaticObject", 0, 0, 0, 0, 0, 0, 0, &btRigidBody::isStaticObject},
 
+	{"setActivationState", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, &btRigidBody::setActivationState},
 	{"setAngularFactor", 0, &btRigidBody::setAngularFactor},
 	{"setAngularVelocity", &btRigidBody::setAngularVelocity},
+	{"setCollisionFlags", 0, 0, 0, 0, 0, 0, 0, 0, &btRigidBody::setCollisionFlags},
 	{"setDamping", 0, 0, 0, 0, 0, 0, 0, 0, 0, &btRigidBody::setDamping},
 	{"setFlags", 0, 0, 0, 0, 0, 0, 0, 0, &btRigidBody::setFlags},
 	{"setFriction", 0, &btRigidBody::setFriction},
@@ -83,10 +90,9 @@ bool rbCall(btRigidBody * rb, char * name, AMX * amx, cell * params) {
 
 	if(func->void_const_vector) {
 		btVector3 btvec1;
-		cell * vec1 = MF_GetAmxAddr(amx, params[0]);
-		btvec1[0] = amx_ctof(vec1[0]);
-		btvec1[1] = amx_ctof(vec1[1]);
-		btvec1[2] = amx_ctof(vec1[2]);
+		btvec1[0] = amx_ctof(params[0]);
+		btvec1[1] = amx_ctof(params[1]);
+		btvec1[2] = amx_ctof(params[2]);
 		(rb->*(func->void_const_vector))(btvec1);
 	}
 	else if(func->void_scalar) {
@@ -96,15 +102,13 @@ bool rbCall(btRigidBody * rb, char * name, AMX * amx, cell * params) {
 	}
 	else if(func->void_const_vector_const_vector) {
 		btVector3 btvec1;
-		cell * vec1 = MF_GetAmxAddr(amx, params[0]);
-		btvec1[0] = amx_ctof(vec1[0]);
-		btvec1[1] = amx_ctof(vec1[1]);
-		btvec1[2] = amx_ctof(vec1[2]);
+		btvec1[0] = amx_ctof(params[0]);
+		btvec1[1] = amx_ctof(params[1]);
+		btvec1[2] = amx_ctof(params[2]);
 		btVector3 btvec2;
-		cell * vec2 = MF_GetAmxAddr(amx, params[1]);
-		btvec2[0] = amx_ctof(vec2[0]);
-		btvec2[1] = amx_ctof(vec2[1]);
-		btvec2[2] = amx_ctof(vec2[2]);
+		btvec2[0] = amx_ctof(params[3 + 0]);
+		btvec2[1] = amx_ctof(params[3 + 1]);
+		btvec2[2] = amx_ctof(params[3 + 2]);
 		(rb->*(func->void_const_vector_const_vector))(btvec1, btvec2);
 	}
 	else if(func->void_) {
@@ -118,10 +122,9 @@ bool rbCall(btRigidBody * rb, char * name, AMX * amx, cell * params) {
 	else if(func->const_vector_ref_const) {
 		btVector3 btvec1;
 		btvec1 = (rb->*(func->const_vector_ref_const))();
-		cell * vec1 = MF_GetAmxAddr(amx, params[0]);
-		vec1[0] = amx_ftoc(btvec1[0]);
-		vec1[1] = amx_ftoc(btvec1[1]);
-		vec1[2] = amx_ftoc(btvec1[2]);
+		params[0] = amx_ftoc(btvec1[0]);
+		params[1] = amx_ftoc(btvec1[1]);
+		params[2] = amx_ftoc(btvec1[2]);
 	}
 	else if(func->int_const) {
 		params[0] = (rb->*(func->int_const))();
@@ -143,10 +146,9 @@ bool rbCall(btRigidBody * rb, char * name, AMX * amx, cell * params) {
 		btScalar btscl1;
 		btscl1 = amx_ctof(params[0]);
 		btVector3 btvec1;
-		cell * vec1 = MF_GetAmxAddr(amx, params[0]);
-		btvec1[0] = amx_ctof(vec1[0]);
-		btvec1[1] = amx_ctof(vec1[1]);
-		btvec1[2] = amx_ctof(vec1[2]);
+		btvec1[0] = amx_ctof(params[0]);
+		btvec1[1] = amx_ctof(params[1]);
+		btvec1[2] = amx_ctof(params[2]);
 		(rb->*(func->void_scalar_const_vector))(btscl1, btvec1);
 	}
 	else if(func->void_bool_const) {
@@ -156,38 +158,37 @@ bool rbCall(btRigidBody * rb, char * name, AMX * amx, cell * params) {
 	else if(func->const_transform_ref_const) {
 		btTransform tr = (rb->*(func->const_transform_ref_const))();
 		btVector3 btvec1 = tr.getOrigin();
-		cell * vec1 = MF_GetAmxAddr(amx, params[0]);
-		vec1[0] = amx_ftoc(btvec1[0]);
-		vec1[1] = amx_ftoc(btvec1[1]);
-		vec1[2] = amx_ftoc(btvec1[2]);
+		params[0] = amx_ftoc(btvec1[0]);
+		params[1] = amx_ftoc(btvec1[1]);
+		params[2] = amx_ftoc(btvec1[2]);
 		//TODO same gimbal lock fix
 		Vector btvec2;
 		tr.getBasis().getEulerZYX(btvec2[1], btvec2[0], btvec2[2]);
 		btvec2[0] = -btvec2[0];
 		btvec2 = btvec2 * 57.2957795f;
 
-		cell * vec2 = MF_GetAmxAddr(amx, params[0]);
-		vec2[0] = amx_ftoc(btvec2[0]);
-		vec2[1] = amx_ftoc(btvec2[1]);
-		vec2[2] = amx_ftoc(btvec2[2]);
+		params[3 + 0] = amx_ftoc(btvec2[0]);
+		params[3 + 1] = amx_ftoc(btvec2[1]);
+		params[3 + 2] = amx_ftoc(btvec2[2]);
 	}
 	else if(func->void_const_transform) {
-		
+
 		btVector3 btvec1;
-		cell * vec1 = MF_GetAmxAddr(amx, params[0]);
-		btvec1[0] = amx_ctof(vec1[0]);
-		btvec1[1] = amx_ctof(vec1[1]);
-		btvec1[2] = amx_ctof(vec1[2]);
+		btvec1[0] = amx_ctof(params[0]);
+		btvec1[1] = amx_ctof(params[1]);
+		btvec1[2] = amx_ctof(params[2]);
 		btVector3 btvec2;
-		cell * vec2 = MF_GetAmxAddr(amx, params[0]);
-		btvec2[0] = amx_ctof(vec2[1]);
-		btvec2[1] = -amx_ctof(vec2[0]);
-		btvec2[2] = amx_ctof(vec2[2]);
+		btvec2[0] = amx_ctof(params[3 + 1]);
+		btvec2[1] = -amx_ctof(params[3 + 0]);
+		btvec2[2] = amx_ctof(params[3 + 2]);
 		btvec2 = btvec2 / 57.2957795f;
 
 		btTransform tr(btQuaternion(0, 0, 0, 1), btvec1);
 		tr.getBasis().setEulerZYX(btvec2[0], btvec2[1], btvec2[2]);
 		(rb->*(func->void_const_transform))(tr);
+	}
+	else if(func->void_int_const) {
+		(rb->*(func->void_int_const))(params[0]);
 	}
 	else {
 		MF_Log("Function (%s) type not found", name);

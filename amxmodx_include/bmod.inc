@@ -58,12 +58,35 @@ Returns bmod object. -1 on error.
 native bmod_obj_by_ent(ent)
 
 /*
+CollisionFlags for get/setCollisionFlags
+*/
+enum CollisionFlags
+{
+	CF_STATIC_OBJECT = 1,
+	CF_KINEMATIC_OBJECT = 2,
+	CF_NO_CONTACT_RESPONSE = 4,
+	CF_CUSTOM_MATERIAL_CALLBACK = 8,//this allows per-triangle material (friction/restitution)
+	CF_CHARACTER_OBJECT = 16,
+	CF_DISABLE_VISUALIZE_OBJECT = 32, //disable debug drawing
+	CF_DISABLE_SPU_COL_PROCESSING = 64//disable parallel/SPU processing
+};
+
+enum ActivationState
+{
+	ACTIVE_TAG = 1,
+	ISLAND_SLEEPING = 2,
+	WANTS_DEACTIVATION = 3,
+	DISABLE_DEACTIVATION = 4,
+	DISABLE_SIMULATION = 5,
+}
+
+/*
 Calls a function on given object.
 Returns true on succesful call.
 You can use following functions:
 
 "activate"
-  
+
 "applyCentralForce"
 "applyCentralImpulse"
 "applyDamping"
@@ -72,11 +95,15 @@ You can use following functions:
 "applyImpulse"
 "applyTorque"
 "applyTorqueImpulse"
-  
+
+"forceActivationState"
+
+"getActivationState"
 "getAngularDamping"
 "getAngularFactor"
 "getAngularSleepingThreshold"
 "getAngularVelocity"
+"getCollisionFlags"
 "getFlags"
 "getFriction"
 "getGravity"
@@ -89,13 +116,15 @@ You can use following functions:
 "getRollingFriction"
 "getUserIndex"
 "getWorldTransform"
-  
+
 "isActive"
 "isKinematicObject"
 "isStaticObject"
-  
+
+"setActivationState"
 "setAngularFactor"
 "setAngularVelocity"
+"setCollisionFlags"
 "setDamping"
 "setFlags"
 "setFriction"
@@ -110,7 +139,7 @@ You can use following functions:
 
 See http://www.continuousphysics.com/Bullet/BulletFull/classbtRigidBody.html#pub-methods for more information.
 */
-native bmod_obj_call(obj, func[], ...)
+native bmod_obj_call(obj, func[], any:...)
 
 /*
 Set objects mass. You can use this function to make object static and vice versa.
@@ -137,7 +166,6 @@ enum trimesh_shape_type {
 	TST_concave_static,
 	TST_concave_gimpact,
 	TST_convex,
-	TST_NUM_TYPES,
 };
 
 /*
@@ -152,7 +180,7 @@ Scale is self-explainatory.
 
 Returns true on success.
 */
-native bmod_shape_cfg(trimesh_shape_type, Float:origin[3] = {0.0, 0.0, 0.0}, Float:scale[3] = {1.0, 1.0, 1.0})
+native bmod_shape_cfg(trimesh_shape_type:type, Float:origin[3] = {0.0, 0.0, 0.0}, Float:scale[3] = {1.0, 1.0, 1.0})
 
 /*
 Raycast in bmod world.

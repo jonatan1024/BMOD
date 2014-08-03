@@ -18,6 +18,7 @@ int insertObject(bmodObject* object) {
 		index = g_bmod_objects.rbegin()->first + 1;
 	}
 	g_bmod_objects[index] = object;
+	object->registerIndex(index);
 	return index;
 }
 
@@ -181,7 +182,8 @@ static cell AMX_NATIVE_CALL bmod_obj_set_kinematic(AMX *amx, cell *params) {
 	}
 	else {
 		rigidBody->setCollisionFlags(rigidBody->getCollisionFlags() & ~btCollisionObject::CF_KINEMATIC_OBJECT);
-		rigidBody->setActivationState(WANTS_DEACTIVATION);
+		rigidBody->setActivationState(ACTIVE_TAG);
+		rigidBody->activate();
 	}
 
 	return true;
@@ -240,12 +242,13 @@ static cell AMX_NATIVE_CALL bmod_traceline(AMX *amx, cell *params) {
 	c[1] = amx_ftoc(ray.m_hitNormalWorld[1]);
 	c[2] = amx_ftoc(ray.m_hitNormalWorld[2]);
 
-	//TODO better!
-	for(std::map<int, bmodObject*>::iterator it = g_bmod_objects.begin(); it != g_bmod_objects.end(); ++it) {
+	return (int)ray.m_collisionObject->getUserPointer();
+	/*for(std::map<int, bmodObject*>::iterator it = g_bmod_objects.begin(); it != g_bmod_objects.end(); ++it) {
 		if(it->second->getRigidBody() == ray.m_collisionObject)
 			return it->first;
 	}
 	return -1;
+	*/
 }
 
 /*
