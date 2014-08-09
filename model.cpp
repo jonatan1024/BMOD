@@ -5,8 +5,8 @@
 #include "studio.h"
 
 //#define BULLET_TRIANGLE_COLLISION 1
-#include <BulletCollision\Gimpact\btGImpactShape.h>
-#include <BulletCollision\Gimpact\btCompoundFromGimpact.h>
+#include <BulletCollision/Gimpact/btGImpactShape.h>
+#include <BulletCollision/Gimpact/btCompoundFromGimpact.h>
 
 typedef std::map<std::string, btCollisionShape*> modelmap;
 

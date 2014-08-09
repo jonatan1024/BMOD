@@ -1,7 +1,7 @@
 #include "object.h"
 #include "model.h"
 
-#include "sdk\amxxmodule.h"
+#include "sdk/amxxmodule.h"
 
 bmodObject::bmodObject(const char * model, float mass) {
 	//MF_Log("full init %s", model);
