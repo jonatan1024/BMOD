@@ -84,58 +84,59 @@ enum ActivationState
 Calls a function on given object.
 Returns true on succesful call.
 You can use following functions:
+(format: function name, arguments)
 
-"activate"
+"activate", in bool
 
-"applyCentralForce"
-"applyCentralImpulse"
-"applyDamping"
-"applyForce"
+"applyCentralForce", in float[3]
+"applyCentralImpulse", in float[3]
+"applyDamping", in float
+"applyForce", in float[3], in float[3] //force and relative position
 "applyGravity"
-"applyImpulse"
-"applyTorque"
-"applyTorqueImpulse"
+"applyImpulse", in float[3], in float[3] //see applyForce
+"applyTorque", in float[3]
+"applyTorqueImpulse", in float[3]
 
-"forceActivationState"
+"forceActivationState", in int
 
-"getActivationState"
-"getAngularDamping"
-"getAngularFactor"
-"getAngularSleepingThreshold"
-"getAngularVelocity"
-"getCollisionFlags"
-"getFlags"
-"getFriction"
-"getGravity"
-"getInvMass"
-"getLinearDamping"
-"getLinearFactor"
-"getLinearSleepingThreshold"
-"getLinearVelocity"
-"getRestitution"
-"getRollingFriction"
-"getUserIndex"
-"getWorldTransform"
+"getActivationState", out ActivationState
+"getAngularDamping", out float
+"getAngularFactor", out float[3]
+"getAngularSleepingThreshold", out float
+"getAngularVelocity", out float[3]
+"getCollisionFlags", out CollisionFlags
+"getFlags", out int
+"getFriction", out float
+"getGravity", out float[3]
+"getInvMass", out float
+"getLinearDamping", out float
+"getLinearFactor", out float[3]
+"getLinearSleepingThreshold", out float
+"getLinearVelocity", out float[3]
+"getRestitution", out float
+"getRollingFriction", out float
+"getUserIndex", out int
+"getWorldTransform", out float[3], out float[3] //position and rotation
 
-"isActive"
-"isKinematicObject"
-"isStaticObject"
+"isActive", out bool
+"isKinematicObject", out bool
+"isStaticObject", out bool
 
-"setActivationState"
-"setAngularFactor"
-"setAngularVelocity"
-"setCollisionFlags"
-"setDamping"
-"setFlags"
-"setFriction"
-"setGravity"
-"setLinearFactor"
-"setLinearVelocity"
-"setRestitution"
-"setRollingFriction"
-"setSleepingThresholds"
-"setUserIndex"
-"setWorldTransform"
+"setActivationState", in ActivationState
+"setAngularFactor", in float
+"setAngularVelocity", in float[3]
+"setCollisionFlags", in CollisionFlags
+"setDamping", in float, in float //linear and angular
+"setFlags", in int
+"setFriction", in float
+"setGravity", in float[3]
+"setLinearFactor", in float[3]
+"setLinearVelocity", in float[3]
+"setRestitution", in float
+"setRollingFriction", in float
+"setSleepingThresholds", in float, in float //linear and angular
+"setUserIndex", in int
+"setWorldTransform", in float[3], in float[3] //position and rotation
 
 See http://www.continuousphysics.com/Bullet/BulletFull/classbtRigidBody.html#pub-methods for more information.
 */
