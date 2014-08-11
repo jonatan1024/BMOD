@@ -169,7 +169,6 @@ bool getBSPShape(FILE * bspfile, int modelnum, btCollisionShape ** shape) {
 }
 
 FILE * fmdlopen(const char * model, char ** params) {
-	printf("model: '%s' (%08X) [%02X]\n", model, model, model[0]);
 	char modelf[260];
 	strcpy(modelf, model);
 
@@ -380,7 +379,6 @@ bool getModelShape(const char * model, btCollisionShape** shape) {
 	else {
 		return false;
 	}
-	//printf("\nmodel '%s' saved!\n\n", mdlstr.c_str());
 
 	//shift
 	btCompoundShape * comp = new btCompoundShape();

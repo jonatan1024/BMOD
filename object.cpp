@@ -4,11 +4,8 @@
 #include "sdk/amxxmodule.h"
 
 bmodObject::bmodObject(const char * model, float mass) {
-	//MF_Log("full init %s", model);
 	if(!getModelShape(model, &shape)) {
 		MF_Log("BAD model! (%s)", model);
-		//leaking, but fuck it, this shouldn't be happening at the first place
-		//shape = new btBoxShape(btVector3(32, 32, 32));
 		shape = new btEmptyShape();
 	}
 
@@ -17,8 +14,6 @@ bmodObject::bmodObject(const char * model, float mass) {
 	bmodMotionState* objectMotionState = new bmodMotionState(this);
 	btRigidBody::btRigidBodyConstructionInfo objectRigidBodyCI(mass, objectMotionState, shape, inertia);
 	rigidBody = new btRigidBody(objectRigidBodyCI);
-
-	//rigidBody->setUserPointer(this);
 
 	g_bt_dynamicsWorld->addRigidBody(rigidBody);
 }
@@ -79,7 +74,6 @@ void bmodObject::registerIndex(int index) {
 }
 
 bmodObject::~bmodObject() {
-	//MF_Log("dinit");
 	entities.clear();
 	g_bt_dynamicsWorld->removeRigidBody(rigidBody);
 	delete rigidBody->getMotionState();

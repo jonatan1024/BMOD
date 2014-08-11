@@ -73,16 +73,28 @@ rb_func rb_fcs[] = {
 	{"setWorldTransform", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, &btRigidBody::setWorldTransform},
 };
 
-
-bool rbCall(btRigidBody * rb, char * name, AMX * amx, cell * params) {
-	//todo binsearch
-	rb_func * func = NULL;
-	for(int i = 0; i < sizeof(rb_fcs) / sizeof(rb_func); i++) {
-		if(!stricmp(name, rb_fcs[i].name)) {
-			func = &rb_fcs[i];
-			break;
+rb_func * get_rb_func(char * name) {
+	//binsearch
+	int left = 0;
+	int right = (sizeof(rb_fcs) / sizeof(rb_func)) - 1;
+	while(left <= right) {
+		int mid = left + (right - left) / 2;
+		int sign = strcmp(name, rb_fcs[mid].name);
+		if(sign > 0) {
+			left = mid + 1;
+		}
+		else if(sign < 0) {
+			right = mid - 1;
+		}
+		else {
+			return &rb_fcs[mid];
 		}
 	}
+	return NULL;
+}
+
+bool rbCall(btRigidBody * rb, char * name, AMX * amx, cell * params) {
+	rb_func * func = get_rb_func(name);
 	if(!func) {
 		MF_Log("Function \"%s\" not found!", name);
 		return false;
