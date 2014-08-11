@@ -99,28 +99,32 @@ bool rbCall(btRigidBody * rb, char * name, AMX * amx, cell * params) {
 		MF_Log("Function \"%s\" not found!", name);
 		return false;
 	}
+	
+	cell * param0 = MF_GetAmxAddr(amx, params[0]);
+	cell * param1 = MF_GetAmxAddr(amx, params[1]);
 
 	if(func->void_const_vector) {
+		
 		btVector3 btvec1;
-		btvec1[0] = amx_ctof(params[0]);
-		btvec1[1] = amx_ctof(params[1]);
-		btvec1[2] = amx_ctof(params[2]);
+		btvec1[0] = amx_ctof(param0[0]);
+		btvec1[1] = amx_ctof(param0[1]);
+		btvec1[2] = amx_ctof(param0[2]);
 		(rb->*(func->void_const_vector))(btvec1);
 	}
 	else if(func->void_scalar) {
 		btScalar btscl1;
-		btscl1 = amx_ctof(params[0]);
+		btscl1 = amx_ctof(param0[0]);
 		(rb->*(func->void_scalar))(btscl1);
 	}
 	else if(func->void_const_vector_const_vector) {
 		btVector3 btvec1;
-		btvec1[0] = amx_ctof(params[0]);
-		btvec1[1] = amx_ctof(params[1]);
-		btvec1[2] = amx_ctof(params[2]);
+		btvec1[0] = amx_ctof(param0[0]);
+		btvec1[1] = amx_ctof(param0[1]);
+		btvec1[2] = amx_ctof(param0[2]);
 		btVector3 btvec2;
-		btvec2[0] = amx_ctof(params[3 + 0]);
-		btvec2[1] = amx_ctof(params[3 + 1]);
-		btvec2[2] = amx_ctof(params[3 + 2]);
+		btvec2[0] = amx_ctof(param1[0]);
+		btvec2[1] = amx_ctof(param1[1]);
+		btvec2[2] = amx_ctof(param1[2]);
 		(rb->*(func->void_const_vector_const_vector))(btvec1, btvec2);
 	}
 	else if(func->void_) {
@@ -129,70 +133,71 @@ bool rbCall(btRigidBody * rb, char * name, AMX * amx, cell * params) {
 	else if(func->scalar_const) {
 		btScalar btscl1;
 		btscl1 = (rb->*(func->scalar_const))();
-		params[0] = amx_ftoc(btscl1);
+		param0[0] = amx_ftoc(btscl1);
 	}
 	else if(func->const_vector_ref_const) {
 		btVector3 btvec1;
 		btvec1 = (rb->*(func->const_vector_ref_const))();
-		params[0] = amx_ftoc(btvec1[0]);
-		params[1] = amx_ftoc(btvec1[1]);
-		params[2] = amx_ftoc(btvec1[2]);
+		param0[0] = amx_ftoc(btvec1[0]);
+		param0[1] = amx_ftoc(btvec1[1]);
+		param0[2] = amx_ftoc(btvec1[2]);
 	}
 	else if(func->int_const) {
-		params[0] = (rb->*(func->int_const))();
+		param0[0] = (rb->*(func->int_const))();
 	}
 	else if(func->bool_const) {
-		params[0] = (rb->*(func->bool_const))();
+		param0[0] = (rb->*(func->bool_const))();
 	}
 	else if(func->void_int) {
-		(rb->*(func->void_int))(params[0]);
+		(rb->*(func->void_int))(param0[0]);
 	}
 	else if(func->void_scalar_scalar) {
 		btScalar btscl1;
 		btScalar btscl2;
-		btscl1 = amx_ctof(params[0]);
-		btscl2 = amx_ctof(params[1]);
+		btscl1 = amx_ctof(param0[0]);
+		btscl2 = amx_ctof(param1[0]);
 		(rb->*(func->void_scalar_scalar))(btscl1, btscl2);
 	}
 	else if(func->void_scalar_const_vector) {
 		btScalar btscl1;
-		btscl1 = amx_ctof(params[0]);
+		btscl1 = amx_ctof(param0[0]);
 		btVector3 btvec1;
-		btvec1[0] = amx_ctof(params[0]);
-		btvec1[1] = amx_ctof(params[1]);
-		btvec1[2] = amx_ctof(params[2]);
+		btvec1[0] = amx_ctof(param1[0]);
+		btvec1[1] = amx_ctof(param1[1]);
+		btvec1[2] = amx_ctof(param1[2]);
 		(rb->*(func->void_scalar_const_vector))(btscl1, btvec1);
 	}
 	else if(func->void_bool_const) {
-		bool b = (bool)(params[0]);
+		bool b = (bool)(param0[0]);
 		(rb->*(func->void_bool_const))(b);
 	}
 	else if(func->const_transform_ref_const) {
 		btTransform tr = (rb->*(func->const_transform_ref_const))();
 		btVector3 btvec1 = tr.getOrigin();
-		params[0] = amx_ftoc(btvec1[0]);
-		params[1] = amx_ftoc(btvec1[1]);
-		params[2] = amx_ftoc(btvec1[2]);
+		param0[0] = amx_ftoc(btvec1[0]);
+		param0[1] = amx_ftoc(btvec1[1]);
+		param0[2] = amx_ftoc(btvec1[2]);
 		//TODO same gimbal lock fix
 		Vector btvec2;
 		tr.getBasis().getEulerZYX(btvec2[1], btvec2[0], btvec2[2]);
 		btvec2[0] = -btvec2[0];
 		btvec2 = btvec2 * 57.2957795f;
 
-		params[3 + 0] = amx_ftoc(btvec2[0]);
-		params[3 + 1] = amx_ftoc(btvec2[1]);
-		params[3 + 2] = amx_ftoc(btvec2[2]);
+		param1[0] = amx_ftoc(btvec2[0]);
+		param1[1] = amx_ftoc(btvec2[1]);
+		param1[2] = amx_ftoc(btvec2[2]);
 	}
 	else if(func->void_const_transform) {
-
+		//MF_Log("origin: %f %f %f", amx_ctof(param0[0]), amx_ctof(param0[1]), amx_ctof(param0[2]));
 		btVector3 btvec1;
-		btvec1[0] = amx_ctof(params[0]);
-		btvec1[1] = amx_ctof(params[1]);
-		btvec1[2] = amx_ctof(params[2]);
+		btvec1[0] = amx_ctof(param0[0]);
+		btvec1[1] = amx_ctof(param0[1]);
+		btvec1[2] = amx_ctof(param0[2]);
 		btVector3 btvec2;
-		btvec2[0] = amx_ctof(params[3 + 1]);
-		btvec2[1] = -amx_ctof(params[3 + 0]);
-		btvec2[2] = amx_ctof(params[3 + 2]);
+		//MF_Log("angles: %f %f %f", amx_ctof(param1[0]), amx_ctof(param1[1]), amx_ctof(param1[2]));
+		btvec2[0] = amx_ctof(param1[2]);
+		btvec2[1] = -amx_ctof(param1[0]);
+		btvec2[2] = amx_ctof(param1[1]);
 		btvec2 = btvec2 / 57.2957795f;
 
 		btTransform tr(btQuaternion(0, 0, 0, 1), btvec1);
@@ -200,7 +205,7 @@ bool rbCall(btRigidBody * rb, char * name, AMX * amx, cell * params) {
 		(rb->*(func->void_const_transform))(tr);
 	}
 	else if(func->void_int_const) {
-		(rb->*(func->void_int_const))(params[0]);
+		(rb->*(func->void_int_const))(param0[0]);
 	}
 	else {
 		MF_Log("Function (%s) type not found", name);

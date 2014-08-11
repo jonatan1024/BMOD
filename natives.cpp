@@ -148,7 +148,7 @@ static cell AMX_NATIVE_CALL bmod_obj_call(AMX *amx, cell *params) {
 	if(!func || !func[0])
 		return false;
 
-	return rbCall(it->second->getRigidBody(), func, amx, MF_GetAmxAddr(amx, params[3]));
+	return rbCall(it->second->getRigidBody(), func, amx, params + 3);
 }
 
 /*
