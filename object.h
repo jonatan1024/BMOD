@@ -2,7 +2,6 @@
 #define __BMOD_OBJECT__
 
 #include <stdio.h>
-//#include <extdll.h>//TODO: is it really nessesary?
 #include <btBulletDynamicsCommon.h>
 
 #include <list>

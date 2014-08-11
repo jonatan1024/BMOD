@@ -66,7 +66,8 @@ void bmodObject::update() {
 	rigidBody->setWorldTransform(worldTrans);
 
 	rigidBody->setLinearVelocity(btVector3(entity->v.velocity.x, entity->v.velocity.y, entity->v.velocity.z));
-	rigidBody->setAngularVelocity(btVector3(entity->v.avelocity.x / RAD2DEG, entity->v.avelocity.y / RAD2DEG, entity->v.avelocity.z / RAD2DEG));
+	//todo: eh... uhm...
+	//rigidBody->setAngularVelocity(btVector3(entity->v.avelocity[1] / RAD2DEG, -entity->v.avelocity[0] / RAD2DEG, entity->v.avelocity[2] / RAD2DEG));
 }
 
 void bmodObject::registerIndex(int index) {
@@ -99,7 +100,7 @@ void bmodMotionState::getWorldTransform(btTransform &worldTrans) const {
 	edict_t * entity = INDEXENT(obj->getEntities()->front());
 
 	worldTrans = btTransform(btQuaternion(0, 0, 0, 1), btVector3(entity->v.origin.x, entity->v.origin.y, entity->v.origin.z));
-	worldTrans.getBasis().setEulerZYX(entity->v.angles[1] / RAD2DEG, -entity->v.angles[0] / RAD2DEG, entity->v.angles[2] / RAD2DEG);
+	worldTrans.getBasis().setEulerZYX(entity->v.angles.z / RAD2DEG, -entity->v.angles.x / RAD2DEG, entity->v.angles.y / RAD2DEG);
 }
 
 void bmodMotionState::setWorldTransform(const btTransform &worldTrans) {
