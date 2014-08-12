@@ -63,7 +63,6 @@ void bmodObject::update() {
 	edict_t * entity = INDEXENT(entities.front());
 
 	btTransform worldTrans(btQuaternion(0, 0, 0, 1), btVector3(entity->v.origin.x, entity->v.origin.y, entity->v.origin.z));
-	//worldTrans.getBasis().setEulerZYX(entity->v.angles.z / RAD2DEG, -entity->v.angles.x / RAD2DEG, entity->v.angles.y / RAD2DEG);
 	btVector3 angles;
 	entity->v.angles.CopyToArray(angles.m_floats);
 	EulerMatrix(angles, worldTrans.getBasis());
@@ -105,7 +104,6 @@ void bmodMotionState::getWorldTransform(btTransform &worldTrans) const {
 	edict_t * entity = INDEXENT(obj->getEntities()->front());
 
 	worldTrans = btTransform(btQuaternion(0, 0, 0, 1), btVector3(entity->v.origin.x, entity->v.origin.y, entity->v.origin.z));
-	//worldTrans.getBasis().setEulerZYX(entity->v.angles.z / RAD2DEG, -entity->v.angles.x / RAD2DEG, entity->v.angles.y / RAD2DEG);
 	btVector3 angles;
 	entity->v.angles.CopyToArray(angles.m_floats);
 	EulerMatrix(angles, worldTrans.getBasis());
@@ -118,14 +116,10 @@ void bmodMotionState::setWorldTransform(const btTransform &worldTrans) {
 
 	Vector origin = Vector((float*)(worldTrans.getOrigin().m_floats));
 
-	//FIXME: gimbal lock problem, rewrite matrix -> euler from scratch
-	Vector angles;
-	/*worldTrans.getBasis().getEulerYPR(angles[1], angles[0], angles[2]); // Yaw (Z), -Pitch(Y), Roll (X)
-	angles[0] = -angles[0];
-	angles = angles * RAD2DEG;*/
-	btVector3 pica;
-	MatrixEuler(worldTrans.getBasis(), pica);
-	angles = Vector((float*)pica.m_floats);
+	
+	btVector3 tmpangles;
+	MatrixEuler(worldTrans.getBasis(), tmpangles);
+	Vector angles = Vector((float*)tmpangles.m_floats);
 	
 	btRigidBody * body = obj->getRigidBody();
 	Vector velocity = Vector((float*)body->getLinearVelocity().m_floats);
