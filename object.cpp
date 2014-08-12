@@ -3,6 +3,8 @@
 
 #include "sdk/amxxmodule.h"
 
+#include "euler.h"
+
 bmodObject::bmodObject(const char * model, float mass) {
 	if(!getModelShape(model, &shape)) {
 		MF_Log("BAD model! (%s)", model);
@@ -61,7 +63,10 @@ void bmodObject::update() {
 	edict_t * entity = INDEXENT(entities.front());
 
 	btTransform worldTrans(btQuaternion(0, 0, 0, 1), btVector3(entity->v.origin.x, entity->v.origin.y, entity->v.origin.z));
-	worldTrans.getBasis().setEulerZYX(entity->v.angles.z / RAD2DEG, -entity->v.angles.x / RAD2DEG, entity->v.angles.y / RAD2DEG);
+	//worldTrans.getBasis().setEulerZYX(entity->v.angles.z / RAD2DEG, -entity->v.angles.x / RAD2DEG, entity->v.angles.y / RAD2DEG);
+	btVector3 angles;
+	entity->v.angles.CopyToArray(angles.m_floats);
+	EulerMatrix(angles, worldTrans.getBasis());
 
 	rigidBody->setWorldTransform(worldTrans);
 
@@ -100,7 +105,10 @@ void bmodMotionState::getWorldTransform(btTransform &worldTrans) const {
 	edict_t * entity = INDEXENT(obj->getEntities()->front());
 
 	worldTrans = btTransform(btQuaternion(0, 0, 0, 1), btVector3(entity->v.origin.x, entity->v.origin.y, entity->v.origin.z));
-	worldTrans.getBasis().setEulerZYX(entity->v.angles.z / RAD2DEG, -entity->v.angles.x / RAD2DEG, entity->v.angles.y / RAD2DEG);
+	//worldTrans.getBasis().setEulerZYX(entity->v.angles.z / RAD2DEG, -entity->v.angles.x / RAD2DEG, entity->v.angles.y / RAD2DEG);
+	btVector3 angles;
+	entity->v.angles.CopyToArray(angles.m_floats);
+	EulerMatrix(angles, worldTrans.getBasis());
 }
 
 void bmodMotionState::setWorldTransform(const btTransform &worldTrans) {
@@ -112,9 +120,12 @@ void bmodMotionState::setWorldTransform(const btTransform &worldTrans) {
 
 	//FIXME: gimbal lock problem, rewrite matrix -> euler from scratch
 	Vector angles;
-	worldTrans.getBasis().getEulerZYX(angles[1], angles[0], angles[2], 1); // Yaw (Z), -Pitch(Y), Roll (X)
+	/*worldTrans.getBasis().getEulerYPR(angles[1], angles[0], angles[2]); // Yaw (Z), -Pitch(Y), Roll (X)
 	angles[0] = -angles[0];
-	angles = angles * RAD2DEG;
+	angles = angles * RAD2DEG;*/
+	btVector3 pica;
+	MatrixEuler(worldTrans.getBasis(), pica);
+	angles = Vector((float*)pica.m_floats);
 	
 	btRigidBody * body = obj->getRigidBody();
 	Vector velocity = Vector((float*)body->getLinearVelocity().m_floats);
@@ -127,6 +138,7 @@ void bmodMotionState::setWorldTransform(const btTransform &worldTrans) {
 		entity->v.angles = angles;
 		//TODO: someday fix sending velocities before deactivation
 		entity->v.velocity = velocity;
-		entity->v.avelocity = avelocity;
+		//todo: eh.. uhm... ah...
+		//entity->v.avelocity = avelocity;
 	}
 }

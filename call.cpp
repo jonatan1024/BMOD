@@ -1,4 +1,5 @@
 #include "call.h"
+#include "euler.h"
 
 typedef struct rb_func {
 	char name[64];
@@ -178,10 +179,11 @@ bool rbCall(btRigidBody * rb, char * name, AMX * amx, cell * params) {
 		param0[1] = amx_ftoc(btvec1[1]);
 		param0[2] = amx_ftoc(btvec1[2]);
 		//TODO same gimbal lock fix
-		Vector btvec2;
-		tr.getBasis().getEulerZYX(btvec2[1], btvec2[0], btvec2[2]);
+		btVector3 btvec2;
+		MatrixEuler(tr.getBasis(), btvec2);
+		/*tr.getBasis().getEulerZYX(btvec2[1], btvec2[0], btvec2[2]);
 		btvec2[0] = -btvec2[0];
-		btvec2 = btvec2 * 57.2957795f;
+		btvec2 = btvec2 * 57.2957795f;*/
 
 		param1[0] = amx_ftoc(btvec2[0]);
 		param1[1] = amx_ftoc(btvec2[1]);
@@ -195,13 +197,18 @@ bool rbCall(btRigidBody * rb, char * name, AMX * amx, cell * params) {
 		btvec1[2] = amx_ctof(param0[2]);
 		btVector3 btvec2;
 		//MF_Log("angles: %f %f %f", amx_ctof(param1[0]), amx_ctof(param1[1]), amx_ctof(param1[2]));
-		btvec2[0] = amx_ctof(param1[2]);
+		btvec2[0] = amx_ctof(param1[0]);
+		btvec2[1] = amx_ctof(param1[1]);
+		btvec2[2] = amx_ctof(param1[2]);
+		btTransform tr(btQuaternion(0, 0, 0, 1), btvec1);
+		EulerMatrix(btvec2, tr.getBasis());
+		/*btvec2[0] = amx_ctof(param1[2]);
 		btvec2[1] = -amx_ctof(param1[0]);
 		btvec2[2] = amx_ctof(param1[1]);
 		btvec2 = btvec2 / 57.2957795f;
 
 		btTransform tr(btQuaternion(0, 0, 0, 1), btvec1);
-		tr.getBasis().setEulerZYX(btvec2[0], btvec2[1], btvec2[2]);
+		tr.getBasis().setEulerZYX(btvec2[0], btvec2[1], btvec2[2]);*/
 		(rb->*(func->void_const_transform))(tr);
 	}
 	else if(func->void_int_const) {

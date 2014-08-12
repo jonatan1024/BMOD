@@ -62,6 +62,7 @@ copy /Y $(ProjectDir)\amxmodx_include\bmod.inc c:\SteamGames\Half-Life\cstrike\a
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="call.cpp" />
+    <ClCompile Include="euler.cpp" />
     <ClCompile Include="forwards.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="model.cpp" />
@@ -72,6 +73,7 @@ copy /Y $(ProjectDir)\amxmodx_include\bmod.inc c:\SteamGames\Half-Life\cstrike\a
   <ItemGroup>
     <ClInclude Include="bspfile.h" />
     <ClInclude Include="call.h" />
+    <ClInclude Include="euler.h" />
     <ClInclude Include="model.h" />
     <ClInclude Include="object.h" />
     <ClInclude Include="sdk\amxxmodule.h" />
