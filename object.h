@@ -8,8 +8,6 @@
 
 extern btDiscreteDynamicsWorld* g_bt_dynamicsWorld;
 
-#define RAD2DEG 57.2957795
-
 class bmodObject {
 private:
 	btRigidBody* rigidBody;

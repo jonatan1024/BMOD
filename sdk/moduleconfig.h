@@ -15,7 +15,7 @@
  *   to add multiple entries.
  */
 #define MODULE_NAME "BMOD"
-#define MODULE_VERSION "alpha"
+#define MODULE_VERSION "140818" //2014-08-18
 #define MODULE_AUTHOR "Jonatan 'Backup' Matejka"
 #define MODULE_URL "http://backup.tvorbamap.cz/"
 #define MODULE_LOGTAG "BMOD"

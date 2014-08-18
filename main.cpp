@@ -7,6 +7,7 @@
 
 #include "object.h"
 #include "model.h"
+#include "debug.h"
 
 //#define BULLET_TRIANGLE_COLLISION 1
 #include <BulletCollision/Gimpact/btGImpactCollisionAlgorithm.h>
@@ -31,27 +32,6 @@ btCollisionDispatcher* g_bt_dispatcher;
 btSequentialImpulseConstraintSolver* g_bt_solver;
 btDiscreteDynamicsWorld* g_bt_dynamicsWorld;
 
-void bmod_serialize() {
-	if(CMD_ARGC() < 2) {
-		MF_PrintSrvConsole("Usage: bmod_serialize <output_filename.bullet>\n");
-		return;
-	}
-	const char* filename = CMD_ARGS();
-	FILE * file = fopen(filename, "wb");
-	if(!file) {
-		MF_PrintSrvConsole("Couldn't open file '%s' for writing\n", filename);
-		return;
-	}
-
-	btDefaultSerializer* serializer = new btDefaultSerializer();
-	g_bt_dynamicsWorld->serialize(serializer);
-	fwrite(serializer->getBufferPointer(), serializer->getCurrentBufferSize(), 1, file);
-	fclose(file);
-
-	MF_PrintSrvConsole("Wrote %d bytes into output file '%s'\n", serializer->getCurrentBufferSize(), filename);
-	delete serializer;
-}
-
 void OnAmxxAttach() {
 	MF_AddNatives(amxxfunctions);
 
@@ -67,7 +47,7 @@ void OnAmxxAttach() {
 
 	btGImpactCollisionAlgorithm::registerAlgorithm(g_bt_dispatcher);
 
-	REG_SVR_COMMAND("bmod_serialize", bmod_serialize);
+	reg_debug_cmds();
 
 	MF_Log("attached");
 	RETURN_META(MRES_IGNORED);

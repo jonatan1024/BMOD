@@ -5,6 +5,10 @@
 
 #include "euler.h"
 
+//fix bad bullet header file
+#undef SIMD_2_PI
+#define SIMD_2_PI			(btScalar(2.0) * SIMD_PI)
+
 bmodObject::bmodObject(const char * model, float mass) {
 	if(!getModelShape(model, &shape)) {
 		MF_Log("BAD model! (%s)", model);
@@ -70,8 +74,7 @@ void bmodObject::update() {
 	rigidBody->setWorldTransform(worldTrans);
 
 	rigidBody->setLinearVelocity(btVector3(entity->v.velocity.x, entity->v.velocity.y, entity->v.velocity.z));
-	//todo: eh... uhm...
-	//rigidBody->setAngularVelocity(btVector3(entity->v.avelocity[1] / RAD2DEG, -entity->v.avelocity[0] / RAD2DEG, entity->v.avelocity[2] / RAD2DEG));
+	rigidBody->setAngularVelocity(btVector3(entity->v.avelocity.z, -entity->v.avelocity.x, entity->v.avelocity.y) * SIMD_RADS_PER_DEG);
 }
 
 void bmodObject::registerIndex(int index) {
@@ -115,24 +118,26 @@ void bmodMotionState::setWorldTransform(const btTransform &worldTrans) {
 		return;
 
 	Vector origin = Vector((float*)(worldTrans.getOrigin().m_floats));
-
 	
-	btVector3 tmpangles;
-	MatrixEuler(worldTrans.getBasis(), tmpangles);
-	Vector angles = Vector((float*)tmpangles.m_floats);
+	btVector3 btAngles;
+	MatrixEuler(worldTrans.getBasis(), btAngles);
+	Vector angles = Vector((float*)btAngles.m_floats);
 	
 	btRigidBody * body = obj->getRigidBody();
-	Vector velocity = Vector((float*)body->getLinearVelocity().m_floats);
-	Vector avelocity = Vector((float*)body->getAngularVelocity().m_floats) * RAD2DEG;
+	Vector velocity;
+	Vector avelocity;
+	if(!body->getDeactivationTime()) {
+		velocity = Vector((float*)body->getLinearVelocity().m_floats);
+		btVector3 btAvelocity = body->getAngularVelocity();
+		avelocity = Vector(-btAvelocity[1], btAvelocity[2], btAvelocity[0]) * SIMD_DEGS_PER_RAD;
+	}
 
 	std::list<int> * entities = obj->getEntities();
 	for(std::list<int>::iterator it = entities->begin(); it != entities->end(); ++it) {
 		edict_t * entity = INDEXENT(*it);
 		SET_ORIGIN(entity, origin);
 		entity->v.angles = angles;
-		//TODO: someday fix sending velocities before deactivation
 		entity->v.velocity = velocity;
-		//todo: eh.. uhm... ah...
-		//entity->v.avelocity = avelocity;
+		entity->v.avelocity = avelocity;
 	}
 }

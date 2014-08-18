@@ -1,0 +1,1 @@
+void reg_debug_cmds();

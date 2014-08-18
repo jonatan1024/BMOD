@@ -7,6 +7,7 @@
 //previous definition, as it is in btScalar.h:
 //#define SIMD_2_PI         btScalar(2.0) * SIMD_PI
 //guess what's wrong :)
+#undef SIMD_2_PI
 #define SIMD_2_PI			(btScalar(2.0) * SIMD_PI)
 
 void EulerMatrix(const btVector3& in_euler, btMatrix3x3& out_matrix) {
@@ -26,17 +27,9 @@ void EulerMatrix(const btVector3& in_euler, btMatrix3x3& out_matrix) {
 }
 
 void MatrixEuler(const btMatrix3x3& in_matrix, btVector3& out_euler) {
-	
-	float old[3];
-	in_matrix.getEulerYPR(old[1], old[0], old[2]);
-	old[0] = -old[0] * SIMD_DEGS_PER_RAD;
-	old[1] = old[1] * SIMD_DEGS_PER_RAD;
-	old[2] = old[2] * SIMD_DEGS_PER_RAD;
-	
-
 	out_euler[0] = btAsin(in_matrix[2][0]);
 
-	if(btFabs(in_matrix[2][0]) < 1) {
+	if(btFabs(in_matrix[2][0]) < (1 - 0.001f)) {
 		out_euler[1] = btAtan2(in_matrix[1][0], in_matrix[0][0]);
 		out_euler[2] = btAtan2(in_matrix[2][1], in_matrix[2][2]);
 	}
