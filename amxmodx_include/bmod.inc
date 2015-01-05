@@ -1,3 +1,17 @@
+#if defined _bmod_included
+   #endinput
+#endif
+#define _bmod_included
+
+#if AMXX_VERSION_NUM >= 175
+   #pragma reqlib bmod
+   #if !defined AMXMODX_NOAUTOLOAD
+      #pragma loadlib bmod
+   #endif
+#else
+   #pragma library bmod
+#endif
+
 /*
 Creates a bmod object from given model and mass. If mass is zero, the object is static.
 Returns handle to bmod object. -1 on error.
